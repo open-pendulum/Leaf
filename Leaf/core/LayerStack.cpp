@@ -1,0 +1,39 @@
+//
+// Created by Saber on 2025/3/9.
+//
+
+#include "LayerStack.h"
+
+namespace Leaf {
+LayerStack::LayerStack() {
+}
+
+LayerStack::~LayerStack() {
+    for (Layer *layer : mLayers) {
+        delete layer;
+    }
+}
+
+void LayerStack::PushLayer(Layer *layer) {
+    mLayers.emplace(mLayers.begin() + mLayerInsertIndex, layer);
+    mLayerInsertIndex++;
+}
+void LayerStack::PushOverlay(Layer *overlay) {
+    mLayers.emplace_back(overlay);
+}
+
+void LayerStack::PopLayer(Layer *layer) {
+    auto it = std::find(mLayers.begin(), mLayers.end(), layer);
+    if (it != mLayers.end()) {
+        mLayers.erase(it);
+        mLayerInsertIndex--;
+    }
+}
+void LayerStack::PopOverlay(Layer *overlay) {
+    auto it = std::find(mLayers.begin(), mLayers.end(), overlay);
+    if (it != mLayers.end()) {
+        mLayers.erase(it);
+    }
+}
+
+}  // namespace Leaf

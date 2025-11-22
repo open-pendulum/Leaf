@@ -1,0 +1,52 @@
+---
+BasedOnStyle: Google
+Language: Cpp
+
+# 覆盖Google风格的默认设置
+AccessModifierOffset: -4    # 访问修饰符（public/private）靠左不对齐
+AlignAfterOpenBracket: Align
+AlignEscapedNewlines: Right
+AlignOperands: Align
+AlignTrailingComments: true
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: false
+BinPackArguments: true
+BinPackParameters: true
+BreakBeforeBraces: Attach      # 左花括号保持在行尾（与Linux风格一致）
+BreakBeforeInheritanceComma: false
+BreakInheritanceList: BeforeColon
+ColumnLimit: 80
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+DerivePointerAlignment: false
+FixNamespaceComments: true
+IndentCaseLabels: false
+IndentWidth: 4                # 基本缩进宽度4空格
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+NamespaceIndentation: None
+PointerAlignment: Right
+SortIncludes: true
+SortUsingDeclarations: true
+SpaceAfterTemplateKeyword: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+SpacesInParentheses: false
+TabWidth: 8
+UseTab: Never
+
+# 类/结构体定义格式
+BreakConstructorInitializers: AfterColon
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeRangeBasedForLoopColon: true
+
+# 成员变量对齐（通过缩进实现）
+IndentAccessModifiers: false  # 访问修饰符不缩进（顶格）

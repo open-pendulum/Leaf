@@ -1,0 +1,8 @@
+#add_subdirectory(spdlog)
+if (USE_IMGUI_DOCKING)
+    message(STATUS "Using ImGui Docking Version")
+    add_subdirectory(imgui_docking)
+else ()
+    add_subdirectory(imgui)
+endif ()
+add_subdirectory(glad)
