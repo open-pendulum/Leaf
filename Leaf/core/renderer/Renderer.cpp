@@ -6,11 +6,26 @@
 
 namespace Leaf {
 
-void Renderer::BeginScene() {
+// 保存当前场景通用数据的静态缓冲区：
+// - 目前只存 ViewProjectionMatrix，后续可以扩展更多（光照、环境参数等）
+Renderer::SceneData *Renderer::sSceneData = new Renderer::SceneData;
+
+void Renderer::BeginScene(OrthographicCamera &camera) {
+    // 从相机中取出当前的 ViewProjection 矩阵缓存下来，
+    // 之后所有 Submit 调用都会使用这一帧的矩阵进行渲染。
+    sSceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
 }
 void Renderer::EndScene() {
 }
-void Renderer::Submit(const std::shared_ptr<VertexArray> &vertexArray) {
+void Renderer::Submit(const std::shared_ptr<Shader> &shader,
+                      const std::shared_ptr<VertexArray> &vertexArray) {
+    // 1. 确保使用指定的 Shader
+    shader->Bind();
+    // 2. 将当前场景缓存的 ViewProjection 矩阵上传到着色器中，
+    //    这里使用的 uniform 名称为 "projectionMatrix"
+    shader->UploadUniformMat4("projectionMatrix",
+                              sSceneData->ViewProjectionMatrix);
+    // 3. 绑定顶点数组对象并发出绘制命令
     vertexArray->Bind();
     RenderCommand::DrawIndexed(vertexArray);
 }

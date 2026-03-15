@@ -12,14 +12,12 @@ file(GLOB LEAF_SOURCE
         )
 
 aux_source_directory(platform/windows LEAF_PLATFORM_WINDOWS_SOURCE)
-message(WARNING "Windows source: ${LEAF_PLATFORM_WINDOWS_SOURCE}")
+
 aux_source_directory(platform/opengl LEAF_PLATFORM_OPENGL_SOURCE)
 
 aux_source_directory(utils LEAF_UTILS_SOURCE)
 
 aux_source_directory(core/renderer LEAF_RENDERER_SOURCE)
-
-message(WARNING "Core renderer source: ${LEAF_RENDERER_SOURCE}")
 
 add_subdirectory(third_party)
 set(LEAF_ALL_SOURCE
