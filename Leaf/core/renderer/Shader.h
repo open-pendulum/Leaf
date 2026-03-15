@@ -27,6 +27,9 @@ public:
     // - mat：要传入 GPU 的 4x4 矩阵（例如 ViewProjection）
     void UploadUniformMat4(const std::string &name, const glm::mat4 &mat);
 
+    // 返回底层 OpenGL program ID，用于调试
+    uint32_t GetRendererID() const { return mRendererID; }
+
 private:
     uint32_t mRendererID;
 };

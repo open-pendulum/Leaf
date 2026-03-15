@@ -5,9 +5,9 @@
 #include "events/ApplicationEvent.h"
 #include "imgui/ImGuiLayer.h"
 #include "renderer/Buffer.h"
+#include "renderer/OrthographicCamera.h"
 #include "renderer/Shader.h"
 #include "renderer/VertexArray.h"
-#include "renderer/OrthographicCamera.h"
 
 namespace Leaf {
 
@@ -58,12 +58,7 @@ private:
     bool mRunning = true;
     // Layer 栈：包含普通层与 overlay
     LayerStack mLayerStack;
-    // 非正式 Demo 用的 Shader 与 VAO（当前示例只画一个简单三角形）
-    std::shared_ptr<Shader> mShader;
-    std::shared_ptr<VertexArray> mVertexArray;
-
-    // 当前场景使用的正交相机
-    OrthographicCamera mCamera;
+    float mLastFrameTime = 0.0f;
 
 private:
     // Application 单例指针（在构造函数中赋值）

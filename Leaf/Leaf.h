@@ -6,3 +6,8 @@
 #include "core/KeyCodes.h"
 #include "core/MouseKeyCodes.h"
 #include "core/imgui/ImGuiLayer.h"
+
+// --------------- Renderer ---------------
+#include "core/renderer/RenderCommand.h"
+#include "core/renderer/Renderer.h"
+// ---------------------------------------

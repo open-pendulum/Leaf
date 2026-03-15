@@ -1,4 +1,5 @@
 #pragma once
+#include "Timestep.h"
 #include "events/Event.h"
 
 namespace Leaf {
@@ -11,7 +12,7 @@ public:
     }
     virtual void OnDetach() {
     }
-    virtual void OnUpdate() {
+    virtual void OnUpdate(Timestep ts) {
     }
     virtual void OnImGuiRender() {
     }
