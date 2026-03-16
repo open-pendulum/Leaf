@@ -3,6 +3,7 @@
 #include <LeafPCH.h>
 
 #include <glm/ext/matrix_clip_space.hpp>  // glm::perspective
+#include <glm/gtc/matrix_transform.hpp>   // glm::translate, glm::rotate
 #include <glm/vec4.hpp>                   // glm::vec4
 #include <memory>
 
@@ -13,53 +14,129 @@
 // - 通过键盘控制“相机”的平移与旋转，从而观察到屏幕上矩形的反向运动
 class ExampleLayer : public Leaf::Layer {
 public:
-    ExampleLayer() : Layer("Example"), mCamera(-1.6f, 1.6f, -0.9f, 0.9f) {
+    ExampleLayer() :
+        Layer("Example"),
+        mCamera(-1.6f, 1.6f, -0.9f, 0.9f),
+        mCameraPosition(0.0f) {
         // 顶点数组对象（封装了顶点缓冲、索引缓冲以及布局）
         mVertexArray.reset(Leaf::VertexArray::Create());
 
         // 一个简单的矩形顶点（四个点），Z=0，使用正交相机绘制
-        float vertices[] = {
-            -0.5f, -0.5f, 0.0f, 0.5f,  -0.5f, 0.0f,
-            0.5f,  0.5f,  0.0f, -0.5f, 0.5f,  0.0f,
-        };
+        float vertices[3 * 7] = {-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
+                                 0.5f,  -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
+                                 0.0f,  0.5f,  0.0f, 0.8f, 0.8f, 0.2f, 1.0f};
         std::shared_ptr<Leaf::VertexBuffer> vertexBuffer;
         vertexBuffer.reset(
             Leaf::VertexBuffer::Create(vertices, sizeof(vertices)));
 
         // 顶点布局：当前位置属性 aPos，三个 float 组成
         Leaf::BufferLayout layout = {
-            {Leaf::ShaderDataType::Float3, "aPos"},
+            {Leaf::ShaderDataType::Float3, "a_Position"},
+            {Leaf::ShaderDataType::Float4, "a_Color"},
         };
 
         vertexBuffer->SetLayout(layout);
         mVertexArray->AddVertexBuffer(vertexBuffer);
 
-        // 矩形索引（两个三角形拼成一个四边形）
-        unsigned int indices[] = {0, 1, 2, 2, 3, 0};
+        uint32_t indices[3] = {0, 1, 2};
         std::shared_ptr<Leaf::IndexBuffer> indexBuffer;
         indexBuffer.reset(Leaf::IndexBuffer::Create(
             indices, sizeof(indices) / sizeof(uint32_t)));
         mVertexArray->SetIndexBuffer(indexBuffer);
 
+        mSquareVertexArray.reset(Leaf::VertexArray::Create());
+        float squareVertices[3 * 4] = {
+
+            -0.5f, -0.5f, 0.0f, 0.5f,  -0.5f, 0.0f,
+            0.5f,  0.5f,  0.0f, -0.5f, 0.5f,  0.0f};
+        std::shared_ptr<Leaf::VertexBuffer> squareVB;
+        squareVB.reset(
+            Leaf::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+        squareVB->SetLayout({
+            {Leaf::ShaderDataType::Float3, "a_Position"},
+        });
+        mSquareVertexArray->AddVertexBuffer(squareVB);
+
+        unsigned int squareIndices[6] = {0, 1, 2, 2, 3, 0};
+        std::shared_ptr<Leaf::IndexBuffer> squareIndexBuffer;
+        squareIndexBuffer.reset(Leaf::IndexBuffer::Create(
+            squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
+        mSquareVertexArray->SetIndexBuffer(squareIndexBuffer);
+
         // 一个最简单的着色器：只接收一个投影矩阵（这里实际上传的是
-        // ViewProjection） 并输出纯色片元，用来观察相机运动对最终图像的影响
         std::string vertexSrc = R"(
         #version 330 core
-        layout(location = 0) in vec3 aPos;
-        uniform mat4 projectionMatrix;
+
+        layout(location = 0) in vec3 a_Position;
+        layout(location = 1) in vec4 a_Color;
+
+        uniform mat4 u_ViewProjection;
+        uniform mat4 u_Transform;
+
+        out vec3 v_Position;
+        out vec4 v_Color;
+
         void main() {
-            gl_Position = projectionMatrix * vec4(aPos, 1.0);
+            v_Position = a_Position;
+            v_Color = a_Color;
+            gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
         }
     )";
+        // ViewProjection） 并输出纯色片元，用来观察相机运动对最终图像的影响
         std::string fragmentSrc = R"(
         #version 330 core
-        out vec4 FragColor;
-        void main() {
-            FragColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+
+        layout(location = 0) out vec4 color;
+
+        in vec3 v_Position;
+        in vec4 v_Color;
+
+        void main()
+        {
+            color = vec4(v_Position * 0.5 + 0.5, 1.0);
+            color = v_Color;
         }
     )";
+
         // 当前实现中 Shader 的构造函数直接编译传入的 GLSL 源码
         mShader = std::make_shared<Leaf::Shader>(vertexSrc, fragmentSrc);
+
+        // 用于批量绘制小方块（网格）的纯色 Shader：
+        // - uniform 命名需要与 Renderer::Submit 里上传的名字保持一致
+        //   当前 Renderer 会上传：
+        //   - "projectionMatrix"：实际为 ViewProjection（相机矩阵）
+        //   - "transformMatrix"：每个物体的模型变换矩阵（位移/缩放等）
+        std::string blueShaderVertexSrc = R"(
+        #version 330 core
+        layout(location = 0) in vec3 a_Position;
+
+        uniform mat4 u_ViewProjection;
+        uniform mat4 u_Transform;
+
+        out vec3 v_Position;
+
+        void main()
+        {
+            v_Position = a_Position;
+            gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
+		}
+    )";
+
+        std::string blueShaderFragmentSrc = R"(
+	#version 330 core
+
+        layout(location = 0) out vec4 color;
+
+        in vec3 v_Position;
+
+        void main()
+        {
+            color = vec4(0.2, 0.3, 0.8, 1.0);
+        }
+        )";
+
+        mBlueShader = std::make_shared<Leaf::Shader>(blueShaderVertexSrc,
+                                                     blueShaderFragmentSrc);
         LEAF_CORE_TRACE("Shader created: {}", mShader->GetRendererID());
     }
     ~ExampleLayer() override = default;
@@ -100,6 +177,22 @@ public:
         // - Submit：上传矩阵到 Shader 的 uniform 并绘制当前的 VertexArray
         // - EndScene：预留后续扩展用（当前为空实现）
         Leaf::Renderer::BeginScene(mCamera);
+
+        // 这里用 transformMatrix 来模拟“物体的模型矩阵（Model）”：
+        // - scale：每个小方块的统一缩放
+        // - translate：每个小方块在世界坐标中的位置
+        // 最终 transform = T(pos) * S(scale)
+        glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
+
+        for (int y = 0; y < 20; y++) {
+            for (int x = 0; x < 20; x++) {
+                glm::vec3 pos(x * 0.11f, y * 0.11f, 0.0f);
+                glm::mat4 transform =
+                    glm::translate(glm::mat4(1.0f), pos) * scale;
+                Leaf::Renderer::Submit(mBlueShader, mSquareVertexArray,
+                                       transform);
+            }
+        }
         Leaf::Renderer::Submit(mShader, mVertexArray);
         Leaf::Renderer::EndScene();
     }
@@ -118,6 +211,9 @@ private:
     // 非正式 Demo 用的 Shader 与 VAO（当前示例只画一个简单三角形）
     std::shared_ptr<Leaf::Shader> mShader {nullptr};
     std::shared_ptr<Leaf::VertexArray> mVertexArray {nullptr};
+
+    std::shared_ptr<Leaf::Shader> mBlueShader {nullptr};
+    std::shared_ptr<Leaf::VertexArray> mSquareVertexArray {nullptr};
 };
 
 class Sandbox : public Leaf::Application {

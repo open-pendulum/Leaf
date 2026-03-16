@@ -18,14 +18,16 @@ void Renderer::BeginScene(OrthographicCamera &camera) {
 void Renderer::EndScene() {
 }
 void Renderer::Submit(const std::shared_ptr<Shader> &shader,
-                      const std::shared_ptr<VertexArray> &vertexArray) {
+                      const std::shared_ptr<VertexArray> &vertexArray,
+                      const glm::mat4 &transform) {
     // 1. 确保使用指定的 Shader
     shader->Bind();
     // 2. 将当前场景缓存的 ViewProjection 矩阵上传到着色器中，
-    //    这里使用的 uniform 名称为 "projectionMatrix"
-    shader->UploadUniformMat4("projectionMatrix",
+    shader->UploadUniformMat4("u_ViewProjection",
                               sSceneData->ViewProjectionMatrix);
-    // 3. 绑定顶点数组对象并发出绘制命令
+    // 3. 将“物体的模型变换矩阵（Model）”上传到着色器中，
+    shader->UploadUniformMat4("u_Transform", transform);
+    // 4. 绑定顶点数组对象并发出绘制命令
     vertexArray->Bind();
     RenderCommand::DrawIndexed(vertexArray);
 }

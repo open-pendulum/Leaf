@@ -27,7 +27,8 @@ public:
     // - 绑定 VertexArray
     // - 调用 RenderCommand::DrawIndexed 走到底层 RendererAPI
     static void Submit(const std::shared_ptr<Shader> &shader,
-                       const std::shared_ptr<VertexArray> &vertexArray);
+                       const std::shared_ptr<VertexArray> &vertexArray,
+                       const glm::mat4 &transform = glm::mat4(1.0f));
 
     static RendererAPI::API GetAPI() {
         return RendererAPI::GetAPI();
