@@ -4,6 +4,7 @@
 
 #include "Renderer.h"
 
+#include "platform/opengl/OpenGLShader.h"
 namespace Leaf {
 
 // 保存当前场景通用数据的静态缓冲区：
@@ -23,10 +24,11 @@ void Renderer::Submit(const std::shared_ptr<Shader> &shader,
     // 1. 确保使用指定的 Shader
     shader->Bind();
     // 2. 将当前场景缓存的 ViewProjection 矩阵上传到着色器中，
-    shader->UploadUniformMat4("u_ViewProjection",
-                              sSceneData->ViewProjectionMatrix);
+    std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMat4(
+        "u_ViewProjection", sSceneData->ViewProjectionMatrix);
     // 3. 将“物体的模型变换矩阵（Model）”上传到着色器中，
-    shader->UploadUniformMat4("u_Transform", transform);
+    std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMat4(
+        "u_Transform", transform);
     // 4. 绑定顶点数组对象并发出绘制命令
     vertexArray->Bind();
     RenderCommand::DrawIndexed(vertexArray);

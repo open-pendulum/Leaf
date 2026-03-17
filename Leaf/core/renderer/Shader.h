@@ -12,25 +12,15 @@ class Shader {
 public:
     // 从 GLSL 源码构造一个着色器程序：
     // - 内部会完成顶点/片元 shader 的编译与 program 的链接
-    Shader(const std::string &vertexSrc, const std::string &fragmentSrc);
-    ~Shader();
+    virtual ~Shader() = default;
 
     // 使当前 shader 成为 OpenGL 的活跃 program，
     // 之后的绘制调用都会使用它
-    void Bind() const;
+    virtual void Bind() const = 0;
 
     // 取消使用当前 shader，相当于绑定 program 0
-    void Unbind() const;
+    virtual void Unbind() const = 0;
 
-    // 上传一个 mat4 uniform：
-    // - name：着色器中 uniform 变量名
-    // - mat：要传入 GPU 的 4x4 矩阵（例如 ViewProjection）
-    void UploadUniformMat4(const std::string &name, const glm::mat4 &mat);
-
-    // 返回底层 OpenGL program ID，用于调试
-    uint32_t GetRendererID() const { return mRendererID; }
-
-private:
-    uint32_t mRendererID;
+    static Shader* Create(const std::string& vertexSrc, const std::string& fragmentSrc);
 };
 }  // namespace Leaf

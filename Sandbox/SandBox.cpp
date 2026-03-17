@@ -1,14 +1,13 @@
-
-
-#include <LeafPCH.h>
+#include <Leaf.h>
+#include <imgui.h>
 
 #include <glm/ext/matrix_clip_space.hpp>  // glm::perspective
 #include <glm/gtc/matrix_transform.hpp>   // glm::translate, glm::rotate
-#include <glm/vec4.hpp>                   // glm::vec4
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/vec4.hpp>  // glm::vec4
 #include <memory>
 
-#include "Leaf.h"
-
+#include "platform/opengl/OpenGLShader.h"
 // ExampleLayer 作为本节教程的演示层：
 // - 持有一个正交相机和一个简单的矩形网格
 // - 通过键盘控制“相机”的平移与旋转，从而观察到屏幕上矩形的反向运动
@@ -99,14 +98,14 @@ public:
     )";
 
         // 当前实现中 Shader 的构造函数直接编译传入的 GLSL 源码
-        mShader = std::make_shared<Leaf::Shader>(vertexSrc, fragmentSrc);
+        mShader.reset(Leaf::Shader::Create(vertexSrc, fragmentSrc));
 
         // 用于批量绘制小方块（网格）的纯色 Shader：
         // - uniform 命名需要与 Renderer::Submit 里上传的名字保持一致
         //   当前 Renderer 会上传：
         //   - "projectionMatrix"：实际为 ViewProjection（相机矩阵）
         //   - "transformMatrix"：每个物体的模型变换矩阵（位移/缩放等）
-        std::string blueShaderVertexSrc = R"(
+        std::string flatColorShaderVertexSrc = R"(
         #version 330 core
         layout(location = 0) in vec3 a_Position;
 
@@ -122,22 +121,22 @@ public:
 		}
     )";
 
-        std::string blueShaderFragmentSrc = R"(
+        std::string flatColorShaderFragmentSrc = R"(
 	#version 330 core
 
         layout(location = 0) out vec4 color;
 
         in vec3 v_Position;
 
+        uniform vec3 u_Color;
         void main()
         {
-            color = vec4(0.2, 0.3, 0.8, 1.0);
+            color = vec4(u_Color, 1.0);
         }
         )";
 
-        mBlueShader = std::make_shared<Leaf::Shader>(blueShaderVertexSrc,
-                                                     blueShaderFragmentSrc);
-        LEAF_CORE_TRACE("Shader created: {}", mShader->GetRendererID());
+        mFlatColorShader.reset(Leaf::Shader::Create(
+            flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
     }
     ~ExampleLayer() override = default;
     void OnUpdate(Leaf::Timestep ts) override {
@@ -184,12 +183,16 @@ public:
         // 最终 transform = T(pos) * S(scale)
         glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
 
+        std::dynamic_pointer_cast<Leaf::OpenGLShader>(mFlatColorShader)->Bind();
+        std::dynamic_pointer_cast<Leaf::OpenGLShader>(mFlatColorShader)
+            ->UploadUniformFloat3("u_Color", mSquareColor);
+
         for (int y = 0; y < 20; y++) {
             for (int x = 0; x < 20; x++) {
                 glm::vec3 pos(x * 0.11f, y * 0.11f, 0.0f);
                 glm::mat4 transform =
                     glm::translate(glm::mat4(1.0f), pos) * scale;
-                Leaf::Renderer::Submit(mBlueShader, mSquareVertexArray,
+                Leaf::Renderer::Submit(mFlatColorShader, mSquareVertexArray,
                                        transform);
             }
         }
@@ -199,6 +202,9 @@ public:
     void OnEvent(Leaf::Event &event) override {
     }
     void OnImGuiRender() override {
+        ImGui::Begin("Settings");
+        ImGui::ColorEdit3("Square Color", glm::value_ptr(mSquareColor));
+        ImGui::End();
     }
 
 private:
@@ -212,8 +218,9 @@ private:
     std::shared_ptr<Leaf::Shader> mShader {nullptr};
     std::shared_ptr<Leaf::VertexArray> mVertexArray {nullptr};
 
-    std::shared_ptr<Leaf::Shader> mBlueShader {nullptr};
+    std::shared_ptr<Leaf::Shader> mFlatColorShader {nullptr};
     std::shared_ptr<Leaf::VertexArray> mSquareVertexArray {nullptr};
+    glm::vec3 mSquareColor = {0.2f, 0.3f, 0.8f};
 };
 
 class Sandbox : public Leaf::Application {
