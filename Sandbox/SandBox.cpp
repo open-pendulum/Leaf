@@ -24,7 +24,7 @@ public:
         float vertices[3 * 7] = {-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
                                  0.5f,  -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
                                  0.0f,  0.5f,  0.0f, 0.8f, 0.8f, 0.2f, 1.0f};
-        std::shared_ptr<Leaf::VertexBuffer> vertexBuffer;
+        Leaf::Ref<Leaf::VertexBuffer> vertexBuffer;
         vertexBuffer.reset(
             Leaf::VertexBuffer::Create(vertices, sizeof(vertices)));
 
@@ -38,26 +38,33 @@ public:
         mVertexArray->AddVertexBuffer(vertexBuffer);
 
         uint32_t indices[3] = {0, 1, 2};
-        std::shared_ptr<Leaf::IndexBuffer> indexBuffer;
+        Leaf::Ref<Leaf::IndexBuffer> indexBuffer;
         indexBuffer.reset(Leaf::IndexBuffer::Create(
             indices, sizeof(indices) / sizeof(uint32_t)));
         mVertexArray->SetIndexBuffer(indexBuffer);
 
         mSquareVertexArray.reset(Leaf::VertexArray::Create());
-        float squareVertices[3 * 4] = {
+        // 纹理方块顶点数据：位置(3float) + 纹理坐标(2float)
+        // 纹理坐标定义：
+        // (0,0) - 左下, (1,0) - 右下, (1,1) - 右上, (0,1) - 左上
+        float squareVertices[5 * 4] = {
 
-            -0.5f, -0.5f, 0.0f, 0.5f,  -0.5f, 0.0f,
-            0.5f,  0.5f,  0.0f, -0.5f, 0.5f,  0.0f};
-        std::shared_ptr<Leaf::VertexBuffer> squareVB;
+            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  // 左下：位置 + 纹理坐标(0,0)
+            0.5f,  -0.5f, 0.0f, 1.0f, 0.0f,  // 右下：位置 + 纹理坐标(1,0)
+            0.5f,  0.5f,  0.0f, 1.0f,1.0f,  // 右上：位置 + 纹理坐标(1,1)
+            -0.5f, 0.5f,  0.0f, 0.0f, 1.0f  // 左上：位置 + 纹理坐标(0,1)
+        };
+        Leaf::Ref<Leaf::VertexBuffer> squareVB;
         squareVB.reset(
             Leaf::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
         squareVB->SetLayout({
             {Leaf::ShaderDataType::Float3, "a_Position"},
+            {Leaf::ShaderDataType::Float2, "a_TexCoord"},
         });
         mSquareVertexArray->AddVertexBuffer(squareVB);
 
         unsigned int squareIndices[6] = {0, 1, 2, 2, 3, 0};
-        std::shared_ptr<Leaf::IndexBuffer> squareIndexBuffer;
+        Leaf::Ref<Leaf::IndexBuffer> squareIndexBuffer;
         squareIndexBuffer.reset(Leaf::IndexBuffer::Create(
             squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
         mSquareVertexArray->SetIndexBuffer(squareIndexBuffer);
@@ -137,6 +144,54 @@ public:
 
         mFlatColorShader.reset(Leaf::Shader::Create(
             flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
+
+        // 纹理着色器 - 顶点着色器
+		// 处理顶点位置和纹理坐标，并将纹理坐标传递给片元着色器
+		std::string textureShaderVertexSrc = R"(
+			#version 330 core
+
+			layout(location = 0) in vec3 a_Position;    // 顶点位置属性
+			layout(location = 1) in vec2 a_TexCoord;    // 纹理坐标属性
+
+			uniform mat4 u_ViewProjection;  // 相机视图投影矩阵
+			uniform mat4 u_Transform;      // 模型变换矩阵
+
+			out vec2 v_TexCoord;           // 传递给片元着色器的纹理坐标
+
+			void main()
+			{
+				v_TexCoord = a_TexCoord;    // 直接传递纹理坐标
+				// 应用变换矩阵：模型变换 → 视图投影变换 → 裁剪空间坐标
+				gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
+			}
+		)";
+
+        // 纹理着色器 - 片元着色器
+		// 根据纹理坐标从纹理中采样颜色
+		std::string textureShaderFragmentSrc = R"(
+			#version 330 core
+
+			layout(location = 0) out vec4 color;
+
+			uniform sampler2D u_Texture;   // 纹理采样器
+			in vec2 v_TexCoord;            // 从顶点着色器传递过来的纹理坐标
+
+			void main()
+			{
+				// 根据纹理坐标从纹理中采样，获得像素颜色
+				color = texture(u_Texture, v_TexCoord);
+			}
+		)";
+
+        mTextureShader.reset(Leaf::Shader::Create(textureShaderVertexSrc,
+                                                  textureShaderFragmentSrc));
+
+        mTexture = Leaf::Texture2D::Create(
+            "D:\\workspace\\Leaf\\Sandbox\\assets\\textures\\Checkerboard.png");
+
+        std::dynamic_pointer_cast<Leaf::OpenGLShader>(mTextureShader)->Bind();
+        std::dynamic_pointer_cast<Leaf::OpenGLShader>(mTextureShader)
+            ->UploadUniformInt("u_Texture", 0);
     }
     ~ExampleLayer() override = default;
     void OnUpdate(Leaf::Timestep ts) override {
@@ -196,7 +251,9 @@ public:
                                        transform);
             }
         }
-        Leaf::Renderer::Submit(mShader, mVertexArray);
+        mTexture->Bind();
+        Leaf::Renderer::Submit(mTextureShader, mSquareVertexArray,
+                               glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
         Leaf::Renderer::EndScene();
     }
     void OnEvent(Leaf::Event &event) override {
@@ -215,12 +272,15 @@ private:
     float mCameraRotationSpeed = 180.0f;
     Leaf::OrthographicCamera mCamera;
     // 非正式 Demo 用的 Shader 与 VAO（当前示例只画一个简单三角形）
-    std::shared_ptr<Leaf::Shader> mShader {nullptr};
-    std::shared_ptr<Leaf::VertexArray> mVertexArray {nullptr};
+    Leaf::Ref<Leaf::Shader> mShader {nullptr};
+    Leaf::Ref<Leaf::VertexArray> mVertexArray {nullptr};
 
-    std::shared_ptr<Leaf::Shader> mFlatColorShader {nullptr};
-    std::shared_ptr<Leaf::VertexArray> mSquareVertexArray {nullptr};
+    Leaf::Ref<Leaf::Shader> mFlatColorShader {nullptr};
+    Leaf::Ref<Leaf::VertexArray> mSquareVertexArray {nullptr};
     glm::vec3 mSquareColor = {0.2f, 0.3f, 0.8f};
+    Leaf::Ref<Leaf::Texture2D> mTexture {nullptr};
+
+    Leaf::Ref<Leaf::Shader> mTextureShader {nullptr};
 };
 
 class Sandbox : public Leaf::Application {

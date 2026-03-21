@@ -10,4 +10,5 @@
 // --------------- Renderer ---------------
 #include "core/renderer/RenderCommand.h"
 #include "core/renderer/Renderer.h"
+#include "core/renderer/Texture.h"
 // ---------------------------------------

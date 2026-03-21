@@ -1,0 +1,60 @@
+name: "dev-log"
+description: "生成每日开发日志，记录工作内容和知识点"
+type: "command"
+trigger: "用户要求总结今天工作内容或生成工作日志时"
+pattern: "/log|/dev-log|工作日志|开发日志|总结工作"
+
+input:
+  type: "text"
+  required: true
+  description: "今日工作内容总结"
+
+output:
+  type: "markdown"
+  format: "dev-log"
+
+steps:
+  1. 分析用户输入的工作内容
+  2. 按照dev-log目录下的文件格式生成日志
+  3. 包含以下部分：
+     - 开发日志标题（带日期）
+     - 本日变更概览
+     - 核心知识点记录
+     - 后续改进点
+     - 调试记录（如有）
+
+template: |
+  ## 开发日志 - {{currentDate}}
+
+  ### 本日变更概览
+  {{#each changes}}
+  - **{{this.title}}**: {{this.description}}
+    {{#each this.details}}
+    - {{this}}
+    {{/each}}
+  {{/each}}
+
+  ### 核心知识点记录
+  {{#each knowledgePoints}}
+  #### {{this.title}}
+  {{this.content}}
+  {{/each}}
+
+  ### 后续可以改进/扩展的点
+  {{#each improvements}}
+  - {{this}}
+  {{/each}}
+
+  {{#if debugRecords}}
+  ### Debug 记录与问题解决
+  {{#each debugRecords}}
+  #### 问题 {{@index}}: {{this.title}}
+  **现象**: {{this.description}}
+
+  **原因分析**: {{this.rootCause}}
+
+  **解决方案**: {{this.solution}}
+
+  **经验教训**: {{this.lessons}}
+  {{/each}}
+  {{/if}}

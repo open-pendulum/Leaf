@@ -23,12 +23,14 @@ void Renderer::Submit(const std::shared_ptr<Shader> &shader,
                       const glm::mat4 &transform) {
     // 1. 确保使用指定的 Shader
     shader->Bind();
-    // 2. 将当前场景缓存的 ViewProjection 矩阵上传到着色器中，
+    // 2. 将当前场景缓存的 ViewProjection 矩阵上传到着色器中
+    // 这个矩阵是相机空间到裁剪空间的变换（Projection × View）
     std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMat4(
-        "u_ViewProjection", sSceneData->ViewProjectionMatrix);
-    // 3. 将“物体的模型变换矩阵（Model）”上传到着色器中，
+        “u_ViewProjection”, sSceneData->ViewProjectionMatrix);
+    // 3. 将”物体的模型变换矩阵（Model）”上传到着色器中
+    // 这个矩阵表示物体在世界空间中的变换（平移、旋转、缩放）
     std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMat4(
-        "u_Transform", transform);
+        “u_Transform”, transform);
     // 4. 绑定顶点数组对象并发出绘制命令
     vertexArray->Bind();
     RenderCommand::DrawIndexed(vertexArray);

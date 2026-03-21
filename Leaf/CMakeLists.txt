@@ -15,6 +15,8 @@ aux_source_directory(platform/windows LEAF_PLATFORM_WINDOWS_SOURCE)
 
 aux_source_directory(platform/opengl LEAF_PLATFORM_OPENGL_SOURCE)
 
+aux_source_directory(third_party/stb_image LEAF_STB_IMAGE_SOURCE)
+
 aux_source_directory(utils LEAF_UTILS_SOURCE)
 
 aux_source_directory(core/renderer LEAF_RENDERER_SOURCE)
@@ -26,6 +28,7 @@ set(LEAF_ALL_SOURCE
         ${LEAF_PLATFORM_WINDOWS_SOURCE}
         ${LEAF_PLATFORM_OPENGL_SOURCE}
         ${LEAF_RENDERER_SOURCE}
+        ${LEAF_STB_IMAGE_SOURCE}
         )
 
 if (BUILD_LEAF_SHARED)
