@@ -6,7 +6,13 @@
 namespace Leaf {
 
 class LEAF_API Input {
+protected:
+    Input() = default;
+
 public:
+    Input(const Input &) = delete;
+    Input &operator=(const Input &) = delete;
+
     static bool IsKeyPressed(int keycode) {
         return sInstance->IsKeyPressedImpl(keycode);
     }

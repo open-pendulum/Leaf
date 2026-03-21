@@ -105,7 +105,7 @@ public:
     )";
 
         // 当前实现中 Shader 的构造函数直接编译传入的 GLSL 源码
-        mShader.reset(Leaf::Shader::Create(vertexSrc, fragmentSrc));
+        mShader = Leaf::Shader::Create("vertexPos", vertexSrc, fragmentSrc);
 
         // 用于批量绘制小方块（网格）的纯色 Shader：
         // - uniform 命名需要与 Renderer::Submit 里上传的名字保持一致
@@ -142,49 +142,11 @@ public:
         }
         )";
 
-        mFlatColorShader.reset(Leaf::Shader::Create(
-            flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
+        mFlatColorShader = Leaf::Shader::Create(
+            "flat", flatColorShaderVertexSrc, flatColorShaderFragmentSrc);
 
-        // 纹理着色器 - 顶点着色器
-        // 处理顶点位置和纹理坐标，并将纹理坐标传递给片元着色器
-        std::string textureShaderVertexSrc = R"(
-			#version 330 core
-
-			layout(location = 0) in vec3 a_Position;    // 顶点位置属性
-			layout(location = 1) in vec2 a_TexCoord;    // 纹理坐标属性
-
-			uniform mat4 u_ViewProjection;  // 相机视图投影矩阵
-			uniform mat4 u_Transform;      // 模型变换矩阵
-
-			out vec2 v_TexCoord;           // 传递给片元着色器的纹理坐标
-
-			void main()
-			{
-				v_TexCoord = a_TexCoord;    // 直接传递纹理坐标
-				// 应用变换矩阵：模型变换 → 视图投影变换 → 裁剪空间坐标
-				gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
-			}
-		)";
-
-        // 纹理着色器 - 片元着色器
-        // 根据纹理坐标从纹理中采样颜色
-        std::string textureShaderFragmentSrc = R"(
-			#version 330 core
-
-			layout(location = 0) out vec4 color;
-
-			uniform sampler2D u_Texture;   // 纹理采样器
-			in vec2 v_TexCoord;            // 从顶点着色器传递过来的纹理坐标
-
-			void main()
-			{
-				// 根据纹理坐标从纹理中采样，获得像素颜色
-				color = texture(u_Texture, v_TexCoord);
-			}
-		)";
-
-        mTextureShader.reset(Leaf::Shader::Create(textureShaderVertexSrc,
-                                                  textureShaderFragmentSrc));
+        auto textureShader = mShaderLibrary.Load(
+            "D:\\workspace\\Leaf\\Sandbox\\assets\\shaders\\Texture.glsl");
 
         // 创建棋盘纹理
         mTexture = Leaf::Texture2D::Create(
@@ -195,8 +157,8 @@ public:
             "D:\\workspace\\Leaf\\Sandbox\\assets\\textures\\ChernoLogo.png");
 
         // 设置纹理采样器：告诉着色器u_Texture uniform使用纹理槽0
-        std::dynamic_pointer_cast<Leaf::OpenGLShader>(mTextureShader)->Bind();
-        std::dynamic_pointer_cast<Leaf::OpenGLShader>(mTextureShader)
+        std::dynamic_pointer_cast<Leaf::OpenGLShader>(textureShader)->Bind();
+        std::dynamic_pointer_cast<Leaf::OpenGLShader>(textureShader)
             ->UploadUniformInt("u_Texture", 0);
     }
     ~ExampleLayer() override = default;
@@ -257,14 +219,15 @@ public:
                                        transform);
             }
         }
+        auto textureShader = mShaderLibrary.Get("Texture");
         // 绘制棋盘纹理方块（放大1.5倍）
         mTexture->Bind();
-        Leaf::Renderer::Submit(mTextureShader, mSquareVertexArray,
+        Leaf::Renderer::Submit(textureShader, mSquareVertexArray,
                                glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 
         // 绘制Cherno Logo纹理方块（缩小0.5倍）
         mLogoTexture->Bind();
-        Leaf::Renderer::Submit(mTextureShader, mSquareVertexArray,
+        Leaf::Renderer::Submit(textureShader, mSquareVertexArray,
                                glm::scale(glm::mat4(1.0f), glm::vec3(0.5f)));
 
         Leaf::Renderer::EndScene();
@@ -294,7 +257,7 @@ private:
     Leaf::Ref<Leaf::Texture2D> mTexture {nullptr};
     Leaf::Ref<Leaf::Texture2D> mLogoTexture {nullptr};
 
-    Leaf::Ref<Leaf::Shader> mTextureShader {nullptr};
+    Leaf::ShaderLibrary mShaderLibrary;
 };
 
 class Sandbox : public Leaf::Application {
