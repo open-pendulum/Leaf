@@ -23,9 +23,11 @@ public:
     }
 
 private:
-    uint32_t mRendererID;
-    uint32_t mVertexBufferIndex = 0;
-    std::vector<std::shared_ptr<VertexBuffer>> mVertexBuffers;
-    std::shared_ptr<IndexBuffer> mIndexBuffer;
+    uint32_t mRendererID;                                    // OpenGL VAO对象ID
+    uint32_t mVertexBufferIndex = 0;                         // 当前可用的顶点属性索引（location）
+    // 这个变量确保多个VertexBuffer添加时，每个属性都能分配到唯一的location
+    // 避免所有属性都被分配到location 0的问题
+    std::vector<std::shared_ptr<VertexBuffer>> mVertexBuffers;  // 关联的顶点缓冲区列表
+    std::shared_ptr<IndexBuffer> mIndexBuffer;                // 关联的索引缓冲区
 };
 }  // namespace Leaf

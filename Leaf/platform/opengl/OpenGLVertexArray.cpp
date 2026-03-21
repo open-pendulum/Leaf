@@ -64,16 +64,17 @@ void OpenGLVertexArray::AddVertexBuffer(
     // 遍历所有顶点属性布局元素
     for (auto &element : layout) {
         // 启用顶点属性数组
-        glEnableVertexAttribArray(index);
+        glEnableVertexAttribArray(mVertexBufferIndex);
         // 指定顶点属性的数据格式和位置
         // 参数：属性索引、分量数量、数据类型、是否归一化、步长、偏移量
-        glVertexAttribPointer(index, element.GetComponentCount(),
+        glVertexAttribPointer(mVertexBufferIndex, element.GetComponentCount(),
                               ShaderDataTypeToOpenGLBaseType(element.type),
                               element.normalized ? GL_TRUE : GL_FALSE,
-                              layout.GetStride(), (const void *)(intptr_t)element.offset);
+                              layout.GetStride(),
+                              (const void *)(intptr_t)element.offset);
         // 关键修复：递增属性索引，确保每个属性分配到正确的location
         // 否则所有属性都会被分配到location 0，导致顶点数据错位
-        index++;
+        mVertexBufferIndex++;
     }
     mVertexBuffers.push_back(vertexBuffer);
 }

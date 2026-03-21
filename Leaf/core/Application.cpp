@@ -9,6 +9,7 @@
 #include "Input.h"
 #include "Window.h"
 #include "events/ApplicationEvent.h"
+#include "renderer/Renderer.h"
 
 namespace Leaf {
 
@@ -26,6 +27,7 @@ Application::Application() {
     // 设置全局 Application 单例
     sInstance = this;
 
+    Renderer::Init();
     // 创建并压入 ImGui 层作为 overlay，这样所有 Layer 都可以在其上绘制 ImGui
     mImGuiLayer = new ImGuiLayer();
     PushOverlay(mImGuiLayer);

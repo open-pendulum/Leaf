@@ -10,6 +10,9 @@ namespace Leaf {
 
 RendererAPI *RenderCommand::sAPI = new OpenGLRendererAPI();
 
+void RenderCommand::Init() {
+    sAPI->Init();
+}
 void RenderCommand::Clear() {
     sAPI->Clear();
 }

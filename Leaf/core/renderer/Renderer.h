@@ -13,6 +13,10 @@ namespace Leaf {
 // - 提供 BeginScene / Submit / EndScene 这套简单接口给上层调用
 class Renderer {
 public:
+    // 初始化渲染系统：
+    // - 调用底层RenderCommand的初始化
+    // - 设置OpenGL等渲染API的必要配置
+    static void Init();
     // 开始一帧场景渲染：
     // - 从传入的相机中缓存 ViewProjection 矩阵
     //   之后 Submit 时会使用它更新 Shader 的 uniform

@@ -51,8 +51,8 @@ public:
 
             -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  // 左下：位置 + 纹理坐标(0,0)
             0.5f,  -0.5f, 0.0f, 1.0f, 0.0f,  // 右下：位置 + 纹理坐标(1,0)
-            0.5f,  0.5f,  0.0f, 1.0f,1.0f,  // 右上：位置 + 纹理坐标(1,1)
-            -0.5f, 0.5f,  0.0f, 0.0f, 1.0f  // 左上：位置 + 纹理坐标(0,1)
+            0.5f,  0.5f,  0.0f, 1.0f, 1.0f,  // 右上：位置 + 纹理坐标(1,1)
+            -0.5f, 0.5f,  0.0f, 0.0f, 1.0f   // 左上：位置 + 纹理坐标(0,1)
         };
         Leaf::Ref<Leaf::VertexBuffer> squareVB;
         squareVB.reset(
@@ -146,8 +146,8 @@ public:
             flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
 
         // 纹理着色器 - 顶点着色器
-		// 处理顶点位置和纹理坐标，并将纹理坐标传递给片元着色器
-		std::string textureShaderVertexSrc = R"(
+        // 处理顶点位置和纹理坐标，并将纹理坐标传递给片元着色器
+        std::string textureShaderVertexSrc = R"(
 			#version 330 core
 
 			layout(location = 0) in vec3 a_Position;    // 顶点位置属性
@@ -167,8 +167,8 @@ public:
 		)";
 
         // 纹理着色器 - 片元着色器
-		// 根据纹理坐标从纹理中采样颜色
-		std::string textureShaderFragmentSrc = R"(
+        // 根据纹理坐标从纹理中采样颜色
+        std::string textureShaderFragmentSrc = R"(
 			#version 330 core
 
 			layout(location = 0) out vec4 color;
@@ -186,9 +186,15 @@ public:
         mTextureShader.reset(Leaf::Shader::Create(textureShaderVertexSrc,
                                                   textureShaderFragmentSrc));
 
+        // 创建棋盘纹理
         mTexture = Leaf::Texture2D::Create(
             "D:\\workspace\\Leaf\\Sandbox\\assets\\textures\\Checkerboard.png");
 
+        // 创建Cherno Logo纹理
+        mLogoTexture = Leaf::Texture2D::Create(
+            "D:\\workspace\\Leaf\\Sandbox\\assets\\textures\\ChernoLogo.png");
+
+        // 设置纹理采样器：告诉着色器u_Texture uniform使用纹理槽0
         std::dynamic_pointer_cast<Leaf::OpenGLShader>(mTextureShader)->Bind();
         std::dynamic_pointer_cast<Leaf::OpenGLShader>(mTextureShader)
             ->UploadUniformInt("u_Texture", 0);
@@ -251,9 +257,16 @@ public:
                                        transform);
             }
         }
+        // 绘制棋盘纹理方块（放大1.5倍）
         mTexture->Bind();
         Leaf::Renderer::Submit(mTextureShader, mSquareVertexArray,
                                glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+
+        // 绘制Cherno Logo纹理方块（缩小0.5倍）
+        mLogoTexture->Bind();
+        Leaf::Renderer::Submit(mTextureShader, mSquareVertexArray,
+                               glm::scale(glm::mat4(1.0f), glm::vec3(0.5f)));
+
         Leaf::Renderer::EndScene();
     }
     void OnEvent(Leaf::Event &event) override {
@@ -279,6 +292,7 @@ private:
     Leaf::Ref<Leaf::VertexArray> mSquareVertexArray {nullptr};
     glm::vec3 mSquareColor = {0.2f, 0.3f, 0.8f};
     Leaf::Ref<Leaf::Texture2D> mTexture {nullptr};
+    Leaf::Ref<Leaf::Texture2D> mLogoTexture {nullptr};
 
     Leaf::Ref<Leaf::Shader> mTextureShader {nullptr};
 };
