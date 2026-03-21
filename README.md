@@ -50,11 +50,9 @@ Leaf/
 
 ### 环境要求
 
-- **操作系统**: Windows 10/11, macOS, Linux
+- **操作系统**: Windows 10/11 (目前仅支持)
 - **编译器**:
   - Visual Studio 2022 (推荐)
-  - CLion 2023.3+ (推荐)
-  - GCC 11+ / Clang 13+
 - **CMake**: 3.25 或更高版本
 - **依赖库**:
   - GLFW (窗口管理)
@@ -80,12 +78,6 @@ Leaf/
    ```bash
    # Visual Studio 2022
    cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Debug ..
-
-   # CLion (会自动生成)
-   cmake -DCMAKE_BUILD_TYPE=Debug ..
-
-   # GCC/Clang
-   cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_BUILD_TYPE=Debug ..
    ```
 
 4. **构建项目**
@@ -99,13 +91,21 @@ Leaf/
    ./bin/Sandbox.exe
    ```
 
-### CLion 集成
+### ## 📋 开发计划
 
-1. 打开 CLion
-2. 选择 "Open" 并选择项目根目录
-3. CLion 会自动检测 CMake 配置
-4. 选择生成方案（Debug/Release）
-5. 直接点击运行按钮
+1. **基于 Hazel 完整实现** - 全面学习并实现 Hazel 的核心功能，优化架构设计
+2. **实现 macOS 编译** - 添加 macOS 平台支持，完善跨平台构建系统
+3. **支持 Metal 后端和 DX 后端** - 实现 Metal (Apple) 和 DirectX (Windows) 渲染后端
+4. **2D 渲染引擎 Shader 特效实现** - 参考 [GPUImage](https://github.com/BradLarson/GPUImage) 项目，实现各种 shader 特效，练习 shader 编程能力
+5. **抽象自有图形库后端封装** - 设计并实现自己的后端封装图形库
+
+## 📝 开发日志
+
+详细的开发记录请查看 [dev-log](./dev-log/) 目录，包含：
+- 技术实现细节
+- 问题解决方案
+- 架构决策记录
+- 学习心得
 
 ## 🎮 功能特性
 
@@ -133,6 +133,14 @@ Leaf/
 - 问题解决方案
 - 架构决策记录
 - 学习心得
+
+## 📋 开发计划
+
+1. **基于 Hazel 完整实现** - 全面学习并实现 Hazel 的核心功能，优化架构设计
+2. **实现 macOS 编译** - 添加 macOS 平台支持，完善跨平台构建系统
+3. **支持 Metal 后端和 DX 后端** - 实现 Metal (Apple) 和 DirectX (Windows) 渲染后端
+4. **2D 渲染引擎 Shader 特效实现** - 参考 [GPUImage](https://github.com/BradLarson/GPUImage) 项目，实现各种 shader 特效，练习 shader 编程能力
+5. **抽象自有图形库后端封装** - 设计并实现自己的后端封装图形库
 
 ## 🤝 贡献
 

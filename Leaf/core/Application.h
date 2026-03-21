@@ -49,7 +49,9 @@ public:
 private:
     // 窗口关闭事件处理：返回 true 表示事件已经被处理
     bool OnWindowClose(WindowCloseEvent &e);
+    bool OnWindowResize(WindowResizeEvent &e);
 
+private:
     // 底层平台窗口（当前由 WindowsWindow/OpenGL 实现）
     std::unique_ptr<Window> mWindow;
     // 全局 ImGui 层（作为 overlay 存在）
@@ -59,6 +61,8 @@ private:
     // Layer 栈：包含普通层与 overlay
     LayerStack mLayerStack;
     float mLastFrameTime = 0.0f;
+
+    bool mIsMinimized = false;
 
 private:
     // Application 单例指针（在构造函数中赋值）

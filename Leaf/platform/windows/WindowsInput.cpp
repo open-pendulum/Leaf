@@ -9,7 +9,7 @@
 #include "Application.h"
 
 namespace Leaf {
-Input *Input::sInstance = new WindowsInput();
+Scope<Input> Input::sInstance = CreateScope<WindowsInput>();
 
 WindowsInput::WindowsInput() {
 }

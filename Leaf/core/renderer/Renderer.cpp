@@ -9,10 +9,14 @@ namespace Leaf {
 
 // 保存当前场景通用数据的静态缓冲区：
 // - 目前只存 ViewProjectionMatrix，后续可以扩展更多（光照、环境参数等）
-Renderer::SceneData *Renderer::sSceneData = new Renderer::SceneData;
+Scope<Renderer::SceneData> Renderer::sSceneData = CreateScope<Renderer::SceneData>();
 
 void Renderer::Init() {
     RenderCommand::Init();
+}
+
+void Renderer::OnWindowResize(uint32_t width, uint32_t height) {
+    RenderCommand::SetViewport(0, 0, width, height);
 }
 
 void Renderer::BeginScene(OrthographicCamera &camera) {

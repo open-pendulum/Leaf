@@ -14,11 +14,9 @@
 class ExampleLayer : public Leaf::Layer {
 public:
     ExampleLayer() :
-        Layer("Example"),
-        mCamera(-1.6f, 1.6f, -0.9f, 0.9f),
-        mCameraPosition(0.0f) {
+        Layer("Example"), mCameraController(1280.0f / 720.0f, true) {
         // 顶点数组对象（封装了顶点缓冲、索引缓冲以及布局）
-        mVertexArray.reset(Leaf::VertexArray::Create());
+        mVertexArray = Leaf::VertexArray::Create();
 
         // 一个简单的矩形顶点（四个点），Z=0，使用正交相机绘制
         float vertices[3 * 7] = {-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
@@ -43,7 +41,7 @@ public:
             indices, sizeof(indices) / sizeof(uint32_t)));
         mVertexArray->SetIndexBuffer(indexBuffer);
 
-        mSquareVertexArray.reset(Leaf::VertexArray::Create());
+        mSquareVertexArray = Leaf::VertexArray::Create();
         // 纹理方块顶点数据：位置(3float) + 纹理坐标(2float)
         // 纹理坐标定义：
         // (0,0) - 左下, (1,0) - 右下, (1,1) - 右上, (0,1) - 左上
@@ -163,42 +161,16 @@ public:
     }
     ~ExampleLayer() override = default;
     void OnUpdate(Leaf::Timestep ts) override {
-        // 基于键盘输入更新相机的位置与旋转（与 Hazel 教程保持同样的方向约定）：
-        // - 按右键：相机在世界中向 +X 方向移动 → 世界在屏幕上看起来向左移动
-        // - 按上键：相机向 +Y 方向移动 → 世界在屏幕上看起来向下移动
-        // - 按 A/D：相机逆/顺时针旋转 → 世界在屏幕上表现为相反方向旋转
-        if (Leaf::Input::IsKeyPressed(LEAF_KEY_LEFT)) {
-            LEAF_TRACE("Left arrow pressed");
-            mCameraPosition.x -= mCameraMoveSpeed * ts;
-        } else if (Leaf::Input::IsKeyPressed(LEAF_KEY_RIGHT)) {
-            mCameraPosition.x += mCameraMoveSpeed * ts;
-        }
-
-        if (Leaf::Input::IsKeyPressed(LEAF_KEY_UP)) {
-            mCameraPosition.y += mCameraMoveSpeed * ts;
-        } else if (Leaf::Input::IsKeyPressed(LEAF_KEY_DOWN)) {
-            mCameraPosition.y -= mCameraMoveSpeed * ts;
-        }
-        if (Leaf::Input::IsKeyPressed(LEAF_KEY_A)) {
-            mCameraRotation += mCameraRotationSpeed * ts;
-        } else if (Leaf::Input::IsKeyPressed(LEAF_KEY_D)) {
-            mCameraRotation -= mCameraRotationSpeed * ts;
-        }
+        mCameraController.OnUpdate(ts);
 
         Leaf::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
         Leaf::RenderCommand::Clear();
-
-        // 将累积下来的相机位置与旋转写回 OrthographicCamera，
-        // 内部会通过 RecalculateViewMatrix() 生成对应的 View / ViewProjection
-        // 矩阵
-        mCamera.SetPosition(mCameraPosition);
-        mCamera.SetRotation(mCameraRotation);
 
         // 场景渲染流程：
         // - BeginScene：缓存当前相机的 ViewProjection 到 Renderer::SceneData
         // - Submit：上传矩阵到 Shader 的 uniform 并绘制当前的 VertexArray
         // - EndScene：预留后续扩展用（当前为空实现）
-        Leaf::Renderer::BeginScene(mCamera);
+        Leaf::Renderer::BeginScene(mCameraController.GetCamera());
 
         // 这里用 transformMatrix 来模拟“物体的模型矩阵（Model）”：
         // - scale：每个小方块的统一缩放
@@ -232,8 +204,11 @@ public:
 
         Leaf::Renderer::EndScene();
     }
+
     void OnEvent(Leaf::Event &event) override {
+        mCameraController.OnEvent(event);
     }
+
     void OnImGuiRender() override {
         ImGui::Begin("Settings");
         ImGui::ColorEdit3("Square Color", glm::value_ptr(mSquareColor));
@@ -241,12 +216,7 @@ public:
     }
 
 private:
-    glm::vec3 mCameraPosition {};
-    float mCameraMoveSpeed = 5.0f;
-
-    float mCameraRotation = 0.0f;
-    float mCameraRotationSpeed = 180.0f;
-    Leaf::OrthographicCamera mCamera;
+    Leaf::OrthographicCameraController mCameraController;
     // 非正式 Demo 用的 Shader 与 VAO（当前示例只画一个简单三角形）
     Leaf::Ref<Leaf::Shader> mShader {nullptr};
     Leaf::Ref<Leaf::VertexArray> mVertexArray {nullptr};

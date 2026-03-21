@@ -33,7 +33,7 @@ private:
 
 private:
     GLFWwindow *mWindow;
-    GraphicsContext *mContext;
+    Scope<GraphicsContext> mContext;
     struct WindowData {
         std::string Title;
         unsigned int Width, Height;

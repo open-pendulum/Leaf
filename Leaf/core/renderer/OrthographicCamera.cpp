@@ -10,13 +10,15 @@ OrthographicCamera::OrthographicCamera(float left, float right, float bottom,
                                        float top)
     // glm::ortho 会根据 left/right/bottom/top 生成一个正交投影矩阵
     // 注意：这里没有把 near/far 作为参数暴露出去，而是简单地用 -1/1
-    : mProjectionMatrix(glm::ortho(left, right, bottom, top, -1.0f, 1.0f))
+    :
+    mProjectionMatrix(glm::ortho(left, right, bottom, top, -1.0f, 1.0f))
     // 初始视图矩阵设为单位矩阵，表示“相机在世界原点，且没有旋转”
     // [ 1  0  0  0 ]
     // [ 0  1  0  0 ]
     // [ 0  0  1  0 ]
     // [ 0  0  0  1 ]
-    , mViewMatrix(1.0f) {
+    ,
+    mViewMatrix(1.0f) {
     // 初次构造时，直接用默认的 View 计算一次 VP 矩阵
     mViewProjectionMatrix = mProjectionMatrix * mViewMatrix;
 }
@@ -42,10 +44,9 @@ void OrthographicCamera::RecalculateViewMatrix() {
     //
     // 换句话说：在逻辑上是“相机在世界中移动/旋转”，
     // 在数学上实现为“用 View 矩阵让整个世界围绕相机反向移动/旋转”。
-    glm::mat4 transform =
-        glm::translate(glm::mat4(1.0f), mPosition) *
-        glm::rotate(glm::mat4(1.0f), glm::radians(mRotation),
-                    glm::vec3(0, 0, 1));
+    glm::mat4 transform = glm::translate(glm::mat4(1.0f), mPosition) *
+                          glm::rotate(glm::mat4(1.0f), glm::radians(mRotation),
+                                      glm::vec3(0, 0, 1));
 
     // 将“相机变换矩阵”的逆作为视图矩阵：
     //   世界空间 → 相机空间
@@ -53,6 +54,12 @@ void OrthographicCamera::RecalculateViewMatrix() {
 
     // 每次视图矩阵发生变化时，重新计算组合矩阵，
     // 这样对外只需要拿 ViewProjection 就能直接用于 Shader。
+    mViewProjectionMatrix = mProjectionMatrix * mViewMatrix;
+}
+
+void OrthographicCamera::SetProjection(float left, float right, float bottom,
+                                       float top) {
+    mProjectionMatrix = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
     mViewProjectionMatrix = mProjectionMatrix * mViewMatrix;
 }
 

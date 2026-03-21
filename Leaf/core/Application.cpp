@@ -41,6 +41,9 @@ void Application::OnEvent(Event &e) {
     EventDispatcher dispatcher(e);
     dispatcher.Dispatch<WindowCloseEvent>(
         LEAF_BIND_EVENT_FN(Application::OnWindowClose));
+    dispatcher.Dispatch<WindowResizeEvent>(
+        LEAF_BIND_EVENT_FN(Application::OnWindowResize));
+
     //    LEAF_CORE_TRACE("{0}", e.ToString());
 
     for (auto it = mLayerStack.end(); it != mLayerStack.begin();) {
@@ -61,8 +64,10 @@ void Application::Run() {
         Timestep timestep = time - mLastFrameTime;
         mLastFrameTime = time;
         // 4. 更新所有 Layer 的逻辑
-        for (Layer *layer : mLayerStack) {
-            layer->OnUpdate(timestep);
+        if (!mIsMinimized) {
+            for (Layer *layer : mLayerStack) {
+                layer->OnUpdate(timestep);
+            }
         }
 
         // 5. ImGui 渲染阶段：先 Begin，再让每个 Layer 画自己的 ImGui，再 End
@@ -83,6 +88,16 @@ bool Application::OnWindowClose(WindowCloseEvent &e) {
     return true;
 }
 
+bool Application::OnWindowResize(WindowResizeEvent &e) {
+    if (e.GetWidth() == 0 || e.GetHeight() == 0) {
+        LEAF_INFO("Window resized to 0x0, minimizing...");
+        mIsMinimized = true;
+        return false;
+    }
+    mIsMinimized = false;
+    Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
+    return true;
+}
 void Application::PushLayer(Leaf::Layer *layer) {
     mLayerStack.PushLayer(layer);
     layer->OnAttach();

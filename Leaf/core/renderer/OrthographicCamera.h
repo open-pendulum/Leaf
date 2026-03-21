@@ -18,12 +18,15 @@ public:
     // - X 方向范围 [left, right]
     // - Y 方向范围 [bottom, top]
     // - Z 方向范围固定为 [-1, 1]（在当前实现中写死在 cpp 内）
-    explicit OrthographicCamera(float left, float right, float bottom, float top);
+    explicit OrthographicCamera(float left, float right, float bottom,
+                                float top);
 
     // 获取/设置相机的位置（世界空间）
     [[nodiscard]] const glm::vec3 &GetPosition() const {
         return mPosition;
     }
+
+    void SetProjection(float left, float right, float bottom, float top);
 
     // 修改位置后会重新计算视图矩阵，从而影响最终的 ViewProjection
     void SetPosition(const glm::vec3 &position) {
@@ -37,7 +40,8 @@ public:
     }
 
     // 注意：这里采用“相机坐标系”的约定，
-    // 实际上是把相机的旋转转换为场景的反向旋转，具体逻辑在 RecalculateViewMatrix 中。
+    // 实际上是把相机的旋转转换为场景的反向旋转，具体逻辑在
+    // RecalculateViewMatrix 中。
     void SetRotation(float rotation) {
         mRotation = rotation;
         RecalculateViewMatrix();
@@ -67,7 +71,7 @@ private:
     // 视图矩阵：世界空间 → 相机空间
     glm::mat4 mViewMatrix;
     // 组合矩阵：Projection * View，渲染时最常用
-    glm::mat4 mViewProjectionMatrix{};
+    glm::mat4 mViewProjectionMatrix {};
 
     // 相机在世界空间中的位置
     glm::vec3 mPosition = {0.0f, 0.0f, 0.0f};

@@ -1,8 +1,7 @@
 #pragma once
 
-#include "RenderCommand.h"
-
 #include "OrthographicCamera.h"
+#include "RenderCommand.h"
 #include "Shader.h"
 
 namespace Leaf {
@@ -17,6 +16,8 @@ public:
     // - 调用底层RenderCommand的初始化
     // - 设置OpenGL等渲染API的必要配置
     static void Init();
+
+    static void OnWindowResize(uint32_t width, uint32_t height);
     // 开始一帧场景渲染：
     // - 从传入的相机中缓存 ViewProjection 矩阵
     //   之后 Submit 时会使用它更新 Shader 的 uniform
@@ -42,7 +43,7 @@ private:
     struct SceneData {
         glm::mat4 ViewProjectionMatrix;
     };
-    static SceneData* sSceneData;
+    static Scope<SceneData> sSceneData;
 };
 
 }  // namespace Leaf

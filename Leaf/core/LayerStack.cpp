@@ -10,6 +10,7 @@ LayerStack::LayerStack() {
 
 LayerStack::~LayerStack() {
     for (Layer *layer : mLayers) {
+        layer->OnDetach();
         delete layer;
     }
 }
