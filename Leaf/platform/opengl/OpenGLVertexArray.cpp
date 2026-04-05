@@ -71,7 +71,7 @@ void OpenGLVertexArray::AddVertexBuffer(
                               ShaderDataTypeToOpenGLBaseType(element.type),
                               element.normalized ? GL_TRUE : GL_FALSE,
                               layout.GetStride(),
-                              (const void *)(intptr_t)element.offset);
+                              reinterpret_cast<const void *>(element.offset));
         // 关键修复：递增属性索引，确保每个属性分配到正确的location
         // 否则所有属性都会被分配到location 0，导致顶点数据错位
         mVertexBufferIndex++;

@@ -13,7 +13,7 @@
 #include "utils/Logger.h"
 
 namespace Leaf {
-static bool s_GLFWInitialized = false;
+    static uint8_t s_GLFWInitializedCount = 0;
 Window *Window::Create(const WindowProps &props) {
     return new WindowsWindow(props);
 }
@@ -30,16 +30,17 @@ void WindowsWindow::Init(const WindowProps &props) {
     mData.Height = props.Height;
     LEAF_INFO("Creating window {} ({}, {})", props.Title, props.Width,
               props.Height);
-    if (!s_GLFWInitialized) {
+    if (s_GLFWInitializedCount == 0) {
+        LEAF_CORE_INFO("Initializing GLFW");
         int success = glfwInit();
         LEAF_CORE_ASSERT(success, "Could not initialize GLFW!");
         glfwSetErrorCallback([](int error, const char *description) {
             LEAF_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
         });
-        s_GLFWInitialized = true;
     }
     mWindow = glfwCreateWindow((int)props.Width, (int)props.Height,
                                mData.Title.c_str(), nullptr, nullptr);
+    ++s_GLFWInitializedCount;
     mContext = CreateScope<OpenGLContext>(mWindow);
 
     mContext->Init();
@@ -129,6 +130,10 @@ void WindowsWindow::Init(const WindowProps &props) {
 
 void WindowsWindow::Shutdown() {
     glfwDestroyWindow(mWindow);
+    if (--s_GLFWInitializedCount == 0) {
+       LEAF_CORE_INFO("Terminating GLFW");
+        glfwTerminate();
+    }
 }
 void WindowsWindow::OnUpdate() {
     glfwPollEvents();

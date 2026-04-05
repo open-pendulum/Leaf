@@ -1,5 +1,6 @@
 #include <Leaf.h>
 #include <imgui.h>
+#include <Core/EntryPoint.h>
 
 #include <glm/ext/matrix_clip_space.hpp>  // glm::perspective
 #include <glm/gtc/matrix_transform.hpp>   // glm::translate, glm::rotate
@@ -7,6 +8,7 @@
 #include <glm/vec4.hpp>  // glm::vec4
 #include <memory>
 
+#include "SandBox2D.h"
 #include "platform/opengl/OpenGLShader.h"
 // ExampleLayer 作为本节教程的演示层：
 // - 持有一个正交相机和一个简单的矩形网格
@@ -233,7 +235,7 @@ private:
 class Sandbox : public Leaf::Application {
 public:
     Sandbox() {
-        PushLayer(new ExampleLayer());
+        PushLayer(new Sandbox2D());
     };
     ~Sandbox() override = default;
 };

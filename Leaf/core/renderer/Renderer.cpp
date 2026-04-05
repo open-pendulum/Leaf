@@ -3,7 +3,7 @@
 //
 
 #include "Renderer.h"
-
+#include "Renderer2D.h"
 #include "platform/opengl/OpenGLShader.h"
 namespace Leaf {
 
@@ -13,6 +13,7 @@ Scope<Renderer::SceneData> Renderer::sSceneData = CreateScope<Renderer::SceneDat
 
 void Renderer::Init() {
     RenderCommand::Init();
+    Renderer2D::Init();
 }
 
 void Renderer::OnWindowResize(uint32_t width, uint32_t height) {

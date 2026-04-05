@@ -4,7 +4,9 @@ set(CMAKE_CXX_STANDARD 20)
 
 
 add_executable(${TARGET_NAME}
-        SandBox.cpp
+        SandBoxApp.cpp
+        SandBox2D.cpp
+        SandBox2D.h
         )
 
 target_include_directories(${TARGET_NAME} PRIVATE
