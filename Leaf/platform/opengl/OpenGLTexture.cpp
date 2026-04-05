@@ -9,6 +9,20 @@
 #include "third_party/stb_image/stb_image.h"
 
 namespace Leaf {
+OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height) :
+    mWidth(width), mHeight(height) {
+    mInternalFormat = GL_RGBA8;
+    mDataFormat = GL_RGBA;
+
+    glCreateTextures(GL_TEXTURE_2D, 1, &mRendererID);
+    glTextureStorage2D(mRendererID, 1, mInternalFormat, mWidth, mHeight);
+
+    glTextureParameteri(mRendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTextureParameteri(mRendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glTextureParameteri(mRendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(mRendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+}
 
 OpenGLTexture2D::OpenGLTexture2D(const std::string &path) : mPath(path) {
     int width, height, channels;
@@ -33,6 +47,9 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string &path) : mPath(path) {
     }
     // 注意：暂时不支持其他通道数（如灰度图1通道）
 
+    mInternalFormat = internalFormat;
+    mDataFormat = dataFormat;
+
     // 创建2D纹理对象
     glCreateTextures(GL_TEXTURE_2D, 1, &mRendererID);
     // 为纹理分配存储空间，只分配1个mipmap级别（基本级别）
@@ -44,12 +61,23 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string &path) : mPath(path) {
     // 放大过滤：使用最近邻采样，保持像素清晰度（可能导致锯齿）
     glTextureParameteri(mRendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
+    glTextureParameteri(mRendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(mRendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
     // 上传纹理数据到GPU
     glTextureSubImage2D(mRendererID, 0, 0, 0, mWidth, mHeight, dataFormat,
                         GL_UNSIGNED_BYTE, data);
 
     // 释放CPU上的图像数据
     stbi_image_free(data);
+}
+
+void OpenGLTexture2D::SetData(const void *data, uint32_t size) {
+    uint32_t bpp = mDataFormat == GL_RGBA ? 4 : 3;
+    LEAF_CORE_ASSERT(size == mWidth * mHeight * bpp,
+                     "Data must be entire texture!");
+    glTextureSubImage2D(mRendererID, 0, 0, 0, mWidth, mHeight, mDataFormat,
+                        GL_UNSIGNED_BYTE, data);
 }
 
 OpenGLTexture2D::~OpenGLTexture2D() {

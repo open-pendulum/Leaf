@@ -15,11 +15,11 @@ public:
     virtual void OnImGuiRender() override;
     void OnEvent(Leaf::Event& e) override;
 private:
-    Leaf::OrthographicCameraController m_CameraController;
+    Leaf::OrthographicCameraController mCameraController;
 
     // Temp
-    Leaf::Ref<Leaf::VertexArray> m_SquareVA;
-    Leaf::Ref<Leaf::Shader> m_FlatColorShader;
-
+    Leaf::Ref<Leaf::VertexArray> mSquareVA;
+    Leaf::Ref<Leaf::Shader> mFlatColorShader;
+    Leaf::Ref<Leaf::Texture2D> mCheckerboardTexture;
     glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 };

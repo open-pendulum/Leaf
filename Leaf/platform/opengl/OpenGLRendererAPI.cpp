@@ -23,6 +23,9 @@ void OpenGLRendererAPI::Init() {
     // - alpha=0.5（半透明）：与背景混合，显示为50%透明度
     // - alpha=0.0（完全透明）：完全显示背景
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // 启用深度测试，用于 3D 场景中的深度缓冲计算
+    glEnable(GL_DEPTH_TEST);
 }
 
 void OpenGLRendererAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width,
@@ -33,13 +36,15 @@ void OpenGLRendererAPI::SetClearColor(const glm::vec4 &color) {
     glClearColor(color.r, color.g, color.b, color.a);
 }
 void OpenGLRendererAPI::Clear() {
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void OpenGLRendererAPI::DrawIndexed(
     const std::shared_ptr<VertexArray> &vertexArray) {
     glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(),
                    GL_UNSIGNED_INT, nullptr);
+    // 解除纹理绑定，避免影响后续绘制
+    glBindTextureUnit(GL_TEXTURE_2D, 0);
 }
 
 }  // namespace Leaf

@@ -4,16 +4,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "platform/opengl/OpenGLShader.h"
-
 Sandbox2D::Sandbox2D()
-    : Layer("Sandbox2D"), m_CameraController(1280.0f / 720.0f)
+    : Layer("Sandbox2D"), mCameraController(1280.0f / 720.0f)
 {
 }
 
 void Sandbox2D::OnAttach()
 {
-
+    mCheckerboardTexture = Leaf::Texture2D::Create("D:\\workspace\\Leaf\\Sandbox\\assets\\textures\\Checkerboard.png");
 }
 
 void Sandbox2D::OnDetach()
@@ -23,14 +21,16 @@ void Sandbox2D::OnDetach()
 void Sandbox2D::OnUpdate(Leaf::Timestep ts)
 {
     // Update
-    m_CameraController.OnUpdate(ts);
+    mCameraController.OnUpdate(ts);
 
     // Render
     Leaf::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
     Leaf::RenderCommand::Clear();
 
-    Leaf::Renderer2D::BeginScene(m_CameraController.GetCamera());
-    Leaf::Renderer2D::DrawQuad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, { 0.8f, 0.2f, 0.3f, 1.0f });
+    Leaf::Renderer2D::BeginScene(mCameraController.GetCamera());
+    Leaf::Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, { 0.8f, 0.2f, 0.3f, 1.0f });  // 红色四边形
+    Leaf::Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, { 0.0f, 0.0f, 0.0f, 1.0f });  // 黑色四边形
+    Leaf::Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 10.0f, 10.0f }, mCheckerboardTexture);  // 棋盘格纹理背景
     Leaf::Renderer2D::EndScene();
 
 }
@@ -44,5 +44,5 @@ void Sandbox2D::OnImGuiRender()
 
 void Sandbox2D::OnEvent(Leaf::Event& e)
 {
-    m_CameraController.OnEvent(e);
+    mCameraController.OnEvent(e);
 }
