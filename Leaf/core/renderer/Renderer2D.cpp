@@ -30,9 +30,8 @@ void Renderer2D::Init() {
         -0.5f, 0.5f,  0.0f, 0.0f, 1.0f   // 左上
     };
 
-    Ref<VertexBuffer> squareVB;
-    squareVB.reset(
-        VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+    Ref<VertexBuffer> squareVB =
+        VertexBuffer::Create(squareVertices, sizeof(squareVertices));
     squareVB->SetLayout({
         {ShaderDataType::Float3, "a_Position"},  // 顶点位置
         {ShaderDataType::Float2, "a_TexCoord"},  // 纹理坐标
@@ -40,9 +39,8 @@ void Renderer2D::Init() {
     s_Data->quad_vertex_array->AddVertexBuffer(squareVB);
 
     uint32_t squareIndices[6] = {0, 1, 2, 2, 3, 0};
-    Ref<IndexBuffer> squareIB;
-    squareIB.reset(IndexBuffer::Create(
-        squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
+    Ref<IndexBuffer> squareIB = IndexBuffer::Create(
+        squareIndices, sizeof(squareIndices) / sizeof(uint32_t));
     s_Data->quad_vertex_array->SetIndexBuffer(squareIB);
 
     // 创建白色默认纹理，用于纯色四边形绘制

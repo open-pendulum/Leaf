@@ -1,7 +1,5 @@
 #include "Shader.h"
 
-#include <glm/gtc/type_ptr.hpp>
-
 #include "Renderer.h"
 #include "platform/opengl/OpenGLShader.h"
 
@@ -13,21 +11,22 @@ Ref<Shader> Shader::Create(const std::string &name,
     // 使用策略模式，支持多种渲染后端扩展
     switch (Renderer::GetAPI()) {
     case RendererAPI::API::OpenGL: {
-        return std::make_shared<OpenGLShader>(name, vertexSrc, fragmentSrc);
+        return CreateRef<OpenGLShader>(name, vertexSrc, fragmentSrc);
     }
     default:
         LEAF_CORE_ASSERT(false, "Unknown RendererAPI!");
-        return nullptr;
     }
+    return nullptr;
 }
 
 Ref<Shader> Shader::Create(const std::string &filePath) {
     switch (Renderer::GetAPI()) {
-    case RendererAPI::API::OpenGL:
-        return std::make_shared<OpenGLShader>(filePath);
-    default:
+    case RendererAPI::API::OpenGL: {
+        return CreateRef<OpenGLShader>(filePath);
+    }
+    default: {
         LEAF_CORE_ASSERT(false, "Unknown RendererAPI!");
-        return nullptr;
+    }
     }
     return nullptr;
 }

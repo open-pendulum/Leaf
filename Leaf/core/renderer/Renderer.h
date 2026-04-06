@@ -31,13 +31,15 @@ public:
     // - 绑定 Shader，并把当前场景的 ViewProjection 矩阵上传为 uniform
     // - 绑定 VertexArray
     // - 调用 RenderCommand::DrawIndexed 走到底层 RendererAPI
-    static void Submit(const std::shared_ptr<Shader> &shader,
-                       const std::shared_ptr<VertexArray> &vertexArray,
+    static void Submit(const Ref<Shader> &shader,
+                       const Ref<VertexArray> &vertexArray,
                        const glm::mat4 &transform = glm::mat4(1.0f));
 
     static RendererAPI::API GetAPI() {
         return RendererAPI::GetAPI();
     }
+
+    static void Shutdown();
 
 private:
     struct SceneData {

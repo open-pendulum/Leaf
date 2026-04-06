@@ -3,9 +3,9 @@
 #include "events/Event.h"
 
 namespace Leaf {
-class LEAF_API Layer {
+class Layer {
 public:
-    Layer(const std::string &name = "Layer") : mDebugName(name) {
+    explicit Layer(const std::string &name = "Layer") : mDebugName(name) {
     }
     virtual ~Layer();
     virtual void OnAttach() {

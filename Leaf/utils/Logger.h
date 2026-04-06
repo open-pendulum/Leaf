@@ -9,13 +9,13 @@ class LEAF_API Logger {
 public:
     static void Init();
 
-    static std::shared_ptr<spdlog::logger> GetCoreLogger();
+    static Ref<spdlog::logger> GetCoreLogger();
 
-    static std::shared_ptr<spdlog::logger> GetAppLogger();
+    static Ref<spdlog::logger> GetAppLogger();
 
 private:
-    static std::shared_ptr<spdlog::logger> sCoreLogger;
-    static std::shared_ptr<spdlog::logger> sAppLogger;
+    static Ref<spdlog::logger> sCoreLogger;
+    static Ref<spdlog::logger> sAppLogger;
 };
 
 }  // namespace Leaf

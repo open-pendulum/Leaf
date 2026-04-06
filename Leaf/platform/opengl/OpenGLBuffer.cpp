@@ -4,7 +4,7 @@
 
 #include "OpenGLBuffer.h"
 
-#include "glad/glad.h"
+#include <glad/glad.h>
 
 namespace Leaf {
 OpenGLVertexBuffer::OpenGLVertexBuffer(float *vertices, uint32_t size) {

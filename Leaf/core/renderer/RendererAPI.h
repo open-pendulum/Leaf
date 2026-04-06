@@ -1,7 +1,7 @@
 #pragma once
 
 #include "VertexArray.h"
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 
 namespace Leaf {
 class RendererAPI {
@@ -24,6 +24,7 @@ public:
     static API GetAPI() {
         return sAPI;
     }
+    static Scope<RendererAPI> Create();
 
 private:
     static API sAPI;

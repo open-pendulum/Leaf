@@ -20,7 +20,7 @@ Application::Application() {
     LEAF_CORE_ASSERT(!sInstance, "Application already exists!")
 
     // 创建底层窗口（平台相关封装在 Window::Create 内）
-    mWindow = std::unique_ptr<Window>(Window::Create());
+    mWindow = Window::Create();
     // 将 Application::OnEvent 注册为窗口事件回调入口
     mWindow->SetEventCallback(LEAF_BIND_EVENT_FN(Application::OnEvent));
 
@@ -34,6 +34,7 @@ Application::Application() {
 }
 
 Application::~Application() {
+    Renderer::Shutdown();
 }
 
 void Application::OnEvent(Event &e) {

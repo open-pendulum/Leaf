@@ -1,6 +1,6 @@
+#include <Core/EntryPoint.h>
 #include <Leaf.h>
 #include <imgui.h>
-#include <Core/EntryPoint.h>
 
 #include <glm/ext/matrix_clip_space.hpp>  // glm::perspective
 #include <glm/gtc/matrix_transform.hpp>   // glm::translate, glm::rotate
@@ -24,9 +24,8 @@ public:
         float vertices[3 * 7] = {-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
                                  0.5f,  -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
                                  0.0f,  0.5f,  0.0f, 0.8f, 0.8f, 0.2f, 1.0f};
-        Leaf::Ref<Leaf::VertexBuffer> vertexBuffer;
-        vertexBuffer.reset(
-            Leaf::VertexBuffer::Create(vertices, sizeof(vertices)));
+        Leaf::Ref<Leaf::VertexBuffer> vertexBuffer =
+            Leaf::VertexBuffer::Create(vertices, sizeof(vertices));
 
         // 顶点布局：当前位置属性 aPos，三个 float 组成
         Leaf::BufferLayout layout = {
@@ -38,9 +37,8 @@ public:
         mVertexArray->AddVertexBuffer(vertexBuffer);
 
         uint32_t indices[3] = {0, 1, 2};
-        Leaf::Ref<Leaf::IndexBuffer> indexBuffer;
-        indexBuffer.reset(Leaf::IndexBuffer::Create(
-            indices, sizeof(indices) / sizeof(uint32_t)));
+        Leaf::Ref<Leaf::IndexBuffer> indexBuffer = Leaf::IndexBuffer::Create(
+            indices, sizeof(indices) / sizeof(uint32_t));
         mVertexArray->SetIndexBuffer(indexBuffer);
 
         mSquareVertexArray = Leaf::VertexArray::Create();
@@ -54,9 +52,8 @@ public:
             0.5f,  0.5f,  0.0f, 1.0f, 1.0f,  // 右上：位置 + 纹理坐标(1,1)
             -0.5f, 0.5f,  0.0f, 0.0f, 1.0f   // 左上：位置 + 纹理坐标(0,1)
         };
-        Leaf::Ref<Leaf::VertexBuffer> squareVB;
-        squareVB.reset(
-            Leaf::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+        Leaf::Ref<Leaf::VertexBuffer> squareVB =
+            Leaf::VertexBuffer::Create(squareVertices, sizeof(squareVertices));
         squareVB->SetLayout({
             {Leaf::ShaderDataType::Float3, "a_Position"},
             {Leaf::ShaderDataType::Float2, "a_TexCoord"},
@@ -64,9 +61,9 @@ public:
         mSquareVertexArray->AddVertexBuffer(squareVB);
 
         unsigned int squareIndices[6] = {0, 1, 2, 2, 3, 0};
-        Leaf::Ref<Leaf::IndexBuffer> squareIndexBuffer;
-        squareIndexBuffer.reset(Leaf::IndexBuffer::Create(
-            squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
+        Leaf::Ref<Leaf::IndexBuffer> squareIndexBuffer =
+            Leaf::IndexBuffer::Create(squareIndices,
+                                      sizeof(squareIndices) / sizeof(uint32_t));
         mSquareVertexArray->SetIndexBuffer(squareIndexBuffer);
 
         // 一个最简单的着色器：只接收一个投影矩阵（这里实际上传的是

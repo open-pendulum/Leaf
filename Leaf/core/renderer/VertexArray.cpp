@@ -6,11 +6,13 @@ namespace Leaf {
 
 Ref<VertexArray> VertexArray::Create() {
     switch (Renderer::GetAPI()) {
-        case RendererAPI::API::OpenGL: {
-            return std::make_shared<OpenGLVertexArray>();
-        }
-        default: {
-        }
+    case RendererAPI::API::OpenGL: {
+        return CreateRef<OpenGLVertexArray>();
+    }
+    default: {
+        LEAF_CORE_ASSERT(false,
+                         "RendererAPI::None is currently not supported!");
+    }
     }
 
     LEAF_CORE_ASSERT(false, "Unknown RendererAPI");

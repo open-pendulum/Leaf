@@ -4,11 +4,11 @@
 
 #include "Logger.h"
 
-#include "spdlog/sinks/stdout_color_sinks.h"
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace Leaf {
-std::shared_ptr<spdlog::logger> Logger::sCoreLogger;
-std::shared_ptr<spdlog::logger> Logger::sAppLogger;
+Ref<spdlog::logger> Logger::sCoreLogger;
+Ref<spdlog::logger> Logger::sAppLogger;
 void Logger::Init() {
     sCoreLogger =
         spdlog::stdout_color_mt("LEAF", spdlog::color_mode::automatic);
@@ -20,11 +20,11 @@ void Logger::Init() {
     sAppLogger->set_pattern("%^[%T][%t][%n][%l]: %v%$");
 }
 
-std::shared_ptr<spdlog::logger> Logger::GetCoreLogger() {
+Ref<spdlog::logger> Logger::GetCoreLogger() {
     return sCoreLogger;
 }
 
-std::shared_ptr<spdlog::logger> Logger::GetAppLogger() {
+Ref<spdlog::logger> Logger::GetAppLogger() {
     return sAppLogger;
 }
 

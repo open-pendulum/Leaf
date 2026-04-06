@@ -2,9 +2,10 @@
 
 #include "Event.h"
 namespace Leaf {
-class LEAF_API WindowResizeEvent : public Event {
+class WindowResizeEvent : public Event {
 public:
-    WindowResizeEvent(unsigned int width, unsigned int height) :
+    explicit WindowResizeEvent(const unsigned int width,
+                               const unsigned int height) :
         mWidth(width), mHeight(height) {
     }
     inline unsigned int GetWidth() const {
@@ -24,7 +25,7 @@ private:
     unsigned int mWidth, mHeight;
 };
 
-class LEAF_API WindowCloseEvent : public Event {
+class WindowCloseEvent : public Event {
 public:
     WindowCloseEvent() {
     }
@@ -32,25 +33,22 @@ public:
     EVENT_CLASS_CATEGORY(EventCategoryApplication)
 };
 
-class LEAF_API AppTickEvent : public Event {
+class AppTickEvent : public Event {
 public:
-    AppTickEvent() {
-    }
+    AppTickEvent() = default;
     EVENT_CLASS_TYPE(AppTick)
     EVENT_CLASS_CATEGORY(EventCategoryApplication)
 };
-class LEAF_API AppUpdateEvent : public Event {
+class AppUpdateEvent : public Event {
 public:
-    AppUpdateEvent() {
-    }
+    AppUpdateEvent() = default;
     EVENT_CLASS_TYPE(AppUpdate)
     EVENT_CLASS_CATEGORY(EventCategoryApplication)
 };
 
-class LEAF_API AppRenderEvent : public Event {
+class AppRenderEvent : public Event {
 public:
-    AppRenderEvent() {
-    }
+    AppRenderEvent() = default;
     EVENT_CLASS_TYPE(AppRender)
     EVENT_CLASS_CATEGORY(EventCategoryApplication)
 };

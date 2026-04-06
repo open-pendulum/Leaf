@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils/Logger.h"
+#include "Application.h"
 
 extern Leaf::Application *Leaf::CreateApplication();
 

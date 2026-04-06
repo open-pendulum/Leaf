@@ -8,7 +8,7 @@
 
 namespace Leaf {
 
-Scope<RendererAPI> RenderCommand::sAPI = CreateScope<OpenGLRendererAPI>();
+Scope<RendererAPI> RenderCommand::sAPI = RendererAPI::Create();
 
 void RenderCommand::Init() {
     sAPI->Init();
@@ -26,8 +26,7 @@ void RenderCommand::SetClearColor(const glm::vec4 &color) {
     sAPI->SetClearColor(color);
 }
 
-void RenderCommand::DrawIndexed(
-    const std::shared_ptr<VertexArray> &vertexArray) {
+void RenderCommand::DrawIndexed(const Ref<VertexArray> &vertexArray) {
     sAPI->DrawIndexed(vertexArray);
 }
 

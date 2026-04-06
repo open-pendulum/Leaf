@@ -3,9 +3,9 @@
 #include "Event.h"
 
 namespace Leaf {
-class LEAF_API MouseMovedEvent : public Event {
+class MouseMovedEvent : public Event {
 public:
-    MouseMovedEvent(float x, float y) : mMouseX(x), mMouseY(y) {
+    explicit MouseMovedEvent(float x, float y) : mMouseX(x), mMouseY(y) {
     }
     inline float GetX() const {
         return mMouseX;
@@ -24,9 +24,9 @@ private:
     float mMouseX, mMouseY;
 };
 
-class LEAF_API MouseScrolledEvent : public Event {
+class MouseScrolledEvent : public Event {
 public:
-    MouseScrolledEvent(float xOffset, float yOffset) :
+    explicit MouseScrolledEvent(float xOffset, float yOffset) :
         mXOffset(xOffset), mYOffset(yOffset) {
     }
     inline float GetXOffset() const {
@@ -46,21 +46,21 @@ private:
     float mXOffset, mYOffset;
 };
 
-class LEAF_API MouseButtonEvent : public Event {
+class MouseButtonEvent : public Event {
 public:
     inline int GetMouseButton() const {
         return mButton;
     }
     EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 protected:
-    MouseButtonEvent(int button) : mButton(button) {
+    explicit MouseButtonEvent(int button) : mButton(button) {
     }
     int mButton;
 };
 
-class LEAF_API MouseButtonPressedEvent : public MouseButtonEvent {
+class MouseButtonPressedEvent : public MouseButtonEvent {
 public:
-    MouseButtonPressedEvent(int button) : MouseButtonEvent(button) {
+    explicit MouseButtonPressedEvent(int button) : MouseButtonEvent(button) {
     }
     std::string ToString() const override {
         std::stringstream ss;
@@ -70,9 +70,9 @@ public:
     EVENT_CLASS_TYPE(MouseButtonPressed)
 };
 
-class LEAF_API MouseButtonReleasedEvent : public MouseButtonEvent {
+class MouseButtonReleasedEvent : public MouseButtonEvent {
 public:
-    MouseButtonReleasedEvent(int button) : MouseButtonEvent(button) {
+    explicit MouseButtonReleasedEvent(int button) : MouseButtonEvent(button) {
     }
     std::string ToString() const override {
         std::stringstream ss;

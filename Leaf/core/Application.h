@@ -53,7 +53,7 @@ private:
 
 private:
     // 底层平台窗口（当前由 WindowsWindow/OpenGL 实现）
-    std::unique_ptr<Window> mWindow;
+    Scope<Window> mWindow;
     // 全局 ImGui 层（作为 overlay 存在）
     ImGuiLayer *mImGuiLayer;
     // 主循环是否继续运行

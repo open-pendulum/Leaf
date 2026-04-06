@@ -5,9 +5,6 @@
 #include "LayerStack.h"
 
 namespace Leaf {
-LayerStack::LayerStack() {
-}
-
 LayerStack::~LayerStack() {
     for (Layer *layer : mLayers) {
         layer->OnDetach();

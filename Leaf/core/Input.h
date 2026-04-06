@@ -5,7 +5,7 @@
 
 namespace Leaf {
 
-class LEAF_API Input {
+class Input {
 protected:
     Input() = default;
 

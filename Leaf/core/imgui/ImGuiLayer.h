@@ -2,8 +2,6 @@
 
 #include "Layer.h"
 #include "events/ApplicationEvent.h"
-#include "events/KeyEvent.h"
-#include "events/MouseEvent.h"
 
 namespace Leaf {
 class LEAF_API ImGuiLayer : public Layer {

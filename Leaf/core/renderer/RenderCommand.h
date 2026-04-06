@@ -1,6 +1,7 @@
 #pragma once
 
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
+
 #include "renderer/RendererAPI.h"
 #include "renderer/VertexArray.h"
 
@@ -13,7 +14,7 @@ public:
                             uint32_t height);
     static void SetClearColor(const glm::vec4 &color);
     static void Clear();
-    static void DrawIndexed(const std::shared_ptr<VertexArray> &vertexArray);
+    static void DrawIndexed(const Ref<VertexArray> &vertexArray);
 
 private:
     static Scope<RendererAPI> sAPI;

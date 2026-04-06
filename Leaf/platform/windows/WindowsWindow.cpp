@@ -13,9 +13,9 @@
 #include "utils/Logger.h"
 
 namespace Leaf {
-    static uint8_t s_GLFWInitializedCount = 0;
-Window *Window::Create(const WindowProps &props) {
-    return new WindowsWindow(props);
+static uint8_t s_GLFWInitializedCount = 0;
+Scope<Window> Window::Create(const WindowProps &props) {
+    return CreateScope<WindowsWindow>(props);
 }
 
 WindowsWindow::WindowsWindow(const WindowProps &props) {
@@ -41,7 +41,7 @@ void WindowsWindow::Init(const WindowProps &props) {
     mWindow = glfwCreateWindow((int)props.Width, (int)props.Height,
                                mData.Title.c_str(), nullptr, nullptr);
     ++s_GLFWInitializedCount;
-    mContext = CreateScope<OpenGLContext>(mWindow);
+    mContext = GraphicsContext::Create(mWindow);
 
     mContext->Init();
 
@@ -131,7 +131,7 @@ void WindowsWindow::Init(const WindowProps &props) {
 void WindowsWindow::Shutdown() {
     glfwDestroyWindow(mWindow);
     if (--s_GLFWInitializedCount == 0) {
-       LEAF_CORE_INFO("Terminating GLFW");
+        LEAF_CORE_INFO("Terminating GLFW");
         glfwTerminate();
     }
 }

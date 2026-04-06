@@ -4,7 +4,7 @@
 
 namespace Leaf {
 
-class LEAF_API KeyEvent : public Event {
+class KeyEvent : public Event {
 public:
     inline int GetKeyCode() const {
         return mKeyCode;
@@ -12,15 +12,15 @@ public:
     EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput);
 
 protected:
-    KeyEvent(int keycode) : mKeyCode(keycode) {
+    explicit KeyEvent(int keycode) : mKeyCode(keycode) {
     }
 
     int mKeyCode;
 };
 
-class LEAF_API KeyPressedEvent : public KeyEvent {
+class KeyPressedEvent : public KeyEvent {
 public:
-    KeyPressedEvent(int keycode, int repeatCount) :
+    explicit KeyPressedEvent(int keycode, int repeatCount) :
         KeyEvent(keycode), mRepeatCount(repeatCount) {
     }
     inline int GetRepeatCount() const {
@@ -38,9 +38,9 @@ private:
     int mRepeatCount;
 };
 
-class LEAF_API KeyReleasedEvent : public KeyEvent {
+class KeyReleasedEvent : public KeyEvent {
 public:
-    KeyReleasedEvent(int keycode) : KeyEvent(keycode) {
+    explicit KeyReleasedEvent(int keycode) : KeyEvent(keycode) {
     }
     std::string ToString() const override {
         std::stringstream ss;
@@ -50,9 +50,9 @@ public:
     EVENT_CLASS_TYPE(KeyReleased)
 };
 
-class LEAF_API KeyTypedEvent : public KeyEvent {
+class KeyTypedEvent : public KeyEvent {
 public:
-    KeyTypedEvent(int keycode) : KeyEvent(keycode) {
+    explicit KeyTypedEvent(int keycode) : KeyEvent(keycode) {
     }
     std::string ToString() const override {
         std::stringstream ss;
