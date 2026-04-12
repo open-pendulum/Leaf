@@ -24,10 +24,10 @@ private:
 #define LEAF_CORE_WARN(...) ::Leaf::Logger::GetCoreLogger()->warn(__VA_ARGS__)
 #define LEAF_CORE_INFO(...) ::Leaf::Logger::GetCoreLogger()->info(__VA_ARGS__)
 #define LEAF_CORE_TRACE(...) ::Leaf::Logger::GetCoreLogger()->trace(__VA_ARGS__)
-#define LEAF_CORE_FATAL(...) ::Leaf::Logger::GetCoreLogger()->fatal(__VA_ARGS__)
+#define LEAF_CORE_FATAL(...) ::Leaf::Logger::GetCoreLogger()->critical(__VA_ARGS__)
 
 #define LEAF_ERROR(...) ::Leaf::Logger::GetAppLogger()->error(__VA_ARGS__)
 #define LEAF_WARN(...) ::Leaf::Logger::GetAppLogger()->warn(__VA_ARGS__)
 #define LEAF_INFO(...) ::Leaf::Logger::GetAppLogger()->info(__VA_ARGS__)
 #define LEAF_TRACE(...) ::Leaf::Logger::GetAppLogger()->trace(__VA_ARGS__)
-#define LEAF_FATAL(...) ::Leaf::Logger::GetAppLogger()->fatal(__VA_ARGS__)
+#define LEAF_FATAL(...) ::Leaf::Logger::GetAppLogger()->critical(__VA_ARGS__)

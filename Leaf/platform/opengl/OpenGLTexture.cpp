@@ -6,11 +6,13 @@
 
 #include <glad/glad.h>
 
+#include "debug/Instrumentor.h"
 #include "third_party/stb_image/stb_image.h"
 
 namespace Leaf {
 OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height) :
     mWidth(width), mHeight(height) {
+    LEAF_PROFILE_FUNCTION();
     mInternalFormat = GL_RGBA8;
     mDataFormat = GL_RGBA;
 
@@ -25,11 +27,17 @@ OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height) :
 }
 
 OpenGLTexture2D::OpenGLTexture2D(const std::string &path) : mPath(path) {
+    LEAF_PROFILE_FUNCTION();
     int width, height, channels;
     // 启用纹理垂直翻转，因为图片的坐标系和OpenGL纹理坐标系相反
     stbi_set_flip_vertically_on_load(1);
     // 使用stb_image加载图片
-    stbi_uc *data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+    stbi_uc *data = nullptr;
+    {
+        LEAF_PROFILE_SCOPE(
+            "stbi_load - OpenGLTexture2D::OpenGLTexture2D(const std:string&)");
+        data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+    }
     LEAF_CORE_ASSERT(data, "Failed to load image!");
     mWidth = width;
     mHeight = height;
@@ -42,8 +50,8 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string &path) : mPath(path) {
         dataFormat = GL_RGBA;       // 数据格式：RGBA顺序
     } else if (channels == 3) {
         // RGB图片：3个通道（红、绿、蓝）
-        internalFormat = GL_RGB8;   // 内部存储格式：8位RGB
-        dataFormat = GL_RGB;        // 数据格式：RGB顺序
+        internalFormat = GL_RGB8;  // 内部存储格式：8位RGB
+        dataFormat = GL_RGB;       // 数据格式：RGB顺序
     }
     // 注意：暂时不支持其他通道数（如灰度图1通道）
 
@@ -73,6 +81,8 @@ OpenGLTexture2D::OpenGLTexture2D(const std::string &path) : mPath(path) {
 }
 
 void OpenGLTexture2D::SetData(const void *data, uint32_t size) {
+    LEAF_PROFILE_FUNCTION();
+
     uint32_t bpp = mDataFormat == GL_RGBA ? 4 : 3;
     LEAF_CORE_ASSERT(size == mWidth * mHeight * bpp,
                      "Data must be entire texture!");
@@ -81,10 +91,14 @@ void OpenGLTexture2D::SetData(const void *data, uint32_t size) {
 }
 
 OpenGLTexture2D::~OpenGLTexture2D() {
+    LEAF_PROFILE_FUNCTION();
+
     glDeleteTextures(1, &mRendererID);
 }
 
 void OpenGLTexture2D::Bind(uint32_t slot) const {
+    LEAF_PROFILE_FUNCTION();
+
     glBindTextureUnit(slot, mRendererID);
 }
 }  // namespace Leaf

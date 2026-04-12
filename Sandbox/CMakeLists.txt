@@ -7,6 +7,8 @@ add_executable(${TARGET_NAME}
         SandBoxApp.cpp
         SandBox2D.cpp
         SandBox2D.h
+        ExampleLayer.h
+        ExampleLayer.cpp
         )
 
 target_include_directories(${TARGET_NAME} PRIVATE

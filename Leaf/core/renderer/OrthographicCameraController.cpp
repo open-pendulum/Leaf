@@ -3,6 +3,7 @@
 
 #include "Input.h"
 #include "KeyCodes.h"
+#include "debug/Instrumentor.h"
 
 namespace Leaf {
 
@@ -15,6 +16,7 @@ OrthographicCameraController::OrthographicCameraController(float aspectRatio,
 }
 
 void OrthographicCameraController::OnUpdate(Timestep ts) {
+    LEAF_PROFILE_FUNCTION();
     if (Input::IsKeyPressed(LEAF_KEY_A)) {
         mCameraPosition.x -=
             cos(glm::radians(mCameraRotation)) * mCameraTranslationSpeed * ts;
@@ -62,6 +64,7 @@ void OrthographicCameraController::OnUpdate(Timestep ts) {
 }
 
 void OrthographicCameraController::OnEvent(Event &e) {
+    LEAF_PROFILE_FUNCTION();
     EventDispatcher dispatcher(e);
     dispatcher.Dispatch<MouseScrolledEvent>(
         LEAF_BIND_EVENT_FN(OrthographicCameraController::OnMouseScrolled));
@@ -70,6 +73,7 @@ void OrthographicCameraController::OnEvent(Event &e) {
 }
 
 bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent &e) {
+    LEAF_PROFILE_FUNCTION();
     mZoomLevel -= e.GetYOffset() * 0.25f;
     mZoomLevel = std::max(mZoomLevel, 0.25f);
     mCamera.SetProjection(-mAspectRatio * mZoomLevel, mAspectRatio * mZoomLevel,
@@ -78,6 +82,7 @@ bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent &e) {
 }
 
 bool OrthographicCameraController::OnWindowResized(WindowResizeEvent &e) {
+    LEAF_PROFILE_FUNCTION();
     mAspectRatio = (float)e.GetWidth() / (float)e.GetHeight();
     mCamera.SetProjection(-mAspectRatio * mZoomLevel, mAspectRatio * mZoomLevel,
                           -mZoomLevel, mZoomLevel);

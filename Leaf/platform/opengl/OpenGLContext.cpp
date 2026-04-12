@@ -5,6 +5,7 @@
 
 #include <GLFW/glfw3.h>
 
+#include "debug/Instrumentor.h"
 #include "glad/glad.h"
 
 namespace Leaf {
@@ -16,6 +17,7 @@ OpenGLContext::OpenGLContext(GLFWwindow *windowHandle) :
 OpenGLContext::~OpenGLContext() {
 }
 void OpenGLContext::Init() {
+    LEAF_PROFILE_FUNCTION();
     glfwMakeContextCurrent(mWindowHandle);
     int stats = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     LEAF_CORE_ASSERT(stats, "Failed to initialize Glad!");
@@ -38,6 +40,7 @@ void OpenGLContext::Init() {
 #endif
 }
 void OpenGLContext::SwapBuffers() {
+    LEAF_PROFILE_FUNCTION();
     glfwSwapBuffers(mWindowHandle);
 }
 

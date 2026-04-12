@@ -2,6 +2,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "debug/Instrumentor.h"
+
 namespace Leaf {
 
 // 这里固定使用一个对称的正交投影体：Z 轴范围 [-1, 1]
@@ -19,11 +21,13 @@ OrthographicCamera::OrthographicCamera(float left, float right, float bottom,
     // [ 0  0  0  1 ]
     ,
     mViewMatrix(1.0f) {
+    LEAF_PROFILE_FUNCTION();
     // 初次构造时，直接用默认的 View 计算一次 VP 矩阵
     mViewProjectionMatrix = mProjectionMatrix * mViewMatrix;
 }
 
 void OrthographicCamera::RecalculateViewMatrix() {
+    LEAF_PROFILE_FUNCTION();
     // 相机视图矩阵的几何含义总结：
     // --------------------------------------------------------
     // 1. transform 表示“相机自身在世界里的姿态”（相机空间 → 世界空间）：
@@ -59,6 +63,7 @@ void OrthographicCamera::RecalculateViewMatrix() {
 
 void OrthographicCamera::SetProjection(float left, float right, float bottom,
                                        float top) {
+    LEAF_PROFILE_FUNCTION();
     mProjectionMatrix = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
     mViewProjectionMatrix = mProjectionMatrix * mViewMatrix;
 }

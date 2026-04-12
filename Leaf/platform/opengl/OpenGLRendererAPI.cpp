@@ -4,10 +4,40 @@
 
 #include "OpenGLRendererAPI.h"
 
+#include "debug/Instrumentor.h"
 #include "glad/glad.h"
 namespace Leaf {
 
+void OpenGLMessageCallback(
+        unsigned source,
+        unsigned type,
+        unsigned id,
+        unsigned severity,
+        int length,
+        const char* message,
+        const void* userParam)
+{
+    switch (severity)
+    {
+    case GL_DEBUG_SEVERITY_HIGH:         LEAF_CORE_FATAL(message); return;
+    case GL_DEBUG_SEVERITY_MEDIUM:       LEAF_CORE_ERROR(message); return;
+    case GL_DEBUG_SEVERITY_LOW:          LEAF_CORE_WARN(message); return;
+    case GL_DEBUG_SEVERITY_NOTIFICATION: LEAF_CORE_TRACE(message); return;
+    }
+
+    LEAF_CORE_ASSERT(false, "Unknown severity level!");
+}
 void OpenGLRendererAPI::Init() {
+    LEAF_PROFILE_FUNCTION();
+
+#define LEAF_DEBUG
+#ifdef LEAF_DEBUG
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback(OpenGLMessageCallback, nullptr);
+
+    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
+#endif
     // 启用混合功能（Blending），用于透明渲染
     // 混合功能允许新绘制的像素与已存在帧缓冲区中的像素进行混合计算
     glEnable(GL_BLEND);

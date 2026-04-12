@@ -5,6 +5,8 @@
 #include <fstream>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "debug/Instrumentor.h"
+
 namespace Leaf {
 namespace {
 static GLenum ShaderTypeFromString(const std::string &type) {
@@ -20,6 +22,7 @@ static GLenum ShaderTypeFromString(const std::string &type) {
 }  // namespace
 
 OpenGLShader::OpenGLShader(const std::string &filepath) {
+    LEAF_PROFILE_FUNCTION();
     LEAF_INFO("Compiling shader from file: {0}", filepath);
     std::string source = ReadFile(filepath);
     auto shaderSources = PreProcess(source);
@@ -38,6 +41,7 @@ OpenGLShader::OpenGLShader(const std::string &name,
                            const std::string &vertexSrc,
                            const std::string &fragmentSrc) :
     mName(name) {
+    LEAF_PROFILE_FUNCTION();
     std::unordered_map<GLenum, std::string> sources;
     sources[GL_VERTEX_SHADER] = vertexSrc;
     sources[GL_FRAGMENT_SHADER] = fragmentSrc;
@@ -45,18 +49,25 @@ OpenGLShader::OpenGLShader(const std::string &name,
 }
 
 OpenGLShader::~OpenGLShader() noexcept {
+    LEAF_PROFILE_FUNCTION();
     glDeleteProgram(mRendererId);
 }
 
 std::string OpenGLShader::ReadFile(const std::string &filepath) {
+    LEAF_PROFILE_FUNCTION();
     std::string result;
     std::ifstream in(filepath, std::ios::in | std::ios::binary);
     if (in) {
         in.seekg(0, std::ios::end);
-        result.resize(in.tellg());
-        in.seekg(0, std::ios::beg);
-        in.read(&result[0], result.size());
-        in.close();
+        if (size_t size = in.tellg(); size != -1) {
+            result.resize(size);
+            in.seekg(0, std::ios::beg);
+            in.read(&result[0], size);
+            in.close();
+        } else {
+            LEAF_CORE_ERROR("Could not read from file '{0}'", filepath);
+        }
+
     } else {
         LEAF_CORE_ERROR("Could not open file '{0}'", filepath);
     }
@@ -64,7 +75,9 @@ std::string OpenGLShader::ReadFile(const std::string &filepath) {
 }
 
 std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(
+
     const std::string &source) {
+    LEAF_PROFILE_FUNCTION();
     std::unordered_map<GLenum, std::string> shaderSources;
     const char *typeToken = "#type";
     size_t typeTokenLength = strlen(typeToken);
@@ -90,6 +103,7 @@ std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(
 
 void OpenGLShader::Compile(
     const std::unordered_map<GLenum, std::string> &shaderSources) {
+    LEAF_PROFILE_FUNCTION();
     GLuint program = glCreateProgram();
     std::vector<GLenum> glShaderIDs(shaderSources.size());
     for (auto &kv : shaderSources) {
@@ -158,26 +172,32 @@ void OpenGLShader::Compile(
 }
 
 void OpenGLShader::Bind() const {
+    LEAF_PROFILE_FUNCTION();
     glUseProgram(mRendererId);
 }
 
 void OpenGLShader::Unbind() const {
+    LEAF_PROFILE_FUNCTION();
     glUseProgram(0);
 }
 
 void OpenGLShader::SetInt(const std::string &name, int value) {
+    LEAF_PROFILE_FUNCTION();
     UploadUniformInt(name, value);
 }
 
 void OpenGLShader::SetFloat3(const std::string &name, const glm::vec3 &value) {
+    LEAF_PROFILE_FUNCTION();
     UploadUniformFloat3(name, value);
 }
 
 void OpenGLShader::SetFloat4(const std::string &name, const glm::vec4 &value) {
+    LEAF_PROFILE_FUNCTION();
     UploadUniformFloat4(name, value);
 }
 
 void OpenGLShader::SetMat4(const std::string &name, const glm::mat4 &value) {
+    LEAF_PROFILE_FUNCTION();
     UploadUniformMat4(name, value);
 }
 

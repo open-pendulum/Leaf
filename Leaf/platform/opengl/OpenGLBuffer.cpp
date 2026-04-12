@@ -6,21 +6,27 @@
 
 #include <glad/glad.h>
 
+#include "debug/Instrumentor.h"
+
 namespace Leaf {
 OpenGLVertexBuffer::OpenGLVertexBuffer(float *vertices, uint32_t size) {
+    LEAF_PROFILE_FUNCTION();
     glCreateBuffers(1, &mRendererID);
     glBindBuffer(GL_ARRAY_BUFFER, mRendererID);
     glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 }
 OpenGLVertexBuffer::~OpenGLVertexBuffer() {
+    LEAF_PROFILE_FUNCTION();
     glDeleteBuffers(1, &mRendererID);
 }
 
 void OpenGLVertexBuffer::Bind() const {
+    LEAF_PROFILE_FUNCTION();
     glBindBuffer(GL_ARRAY_BUFFER, mRendererID);
 }
 
 void OpenGLVertexBuffer::Unbind() const {
+    LEAF_PROFILE_FUNCTION();
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -34,6 +40,7 @@ const Leaf::BufferLayout &OpenGLVertexBuffer::GetLayout() const {
 
 OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t *indices, uint32_t count) :
     mCount(count) {
+    LEAF_PROFILE_FUNCTION();
     glCreateBuffers(1, &mRendererID);
     glBindBuffer(GL_ARRAY_BUFFER, mRendererID);
     glBufferData(GL_ARRAY_BUFFER, sizeof(uint32_t) * count, indices,
@@ -41,14 +48,17 @@ OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t *indices, uint32_t count) :
 }
 
 OpenGLIndexBuffer::~OpenGLIndexBuffer() {
+    LEAF_PROFILE_FUNCTION();
     glDeleteBuffers(1, &mRendererID);
 }
 
 void OpenGLIndexBuffer::Bind() const {
+    LEAF_PROFILE_FUNCTION();
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mRendererID);
 }
 
 void OpenGLIndexBuffer::Unbind() const {
+    LEAF_PROFILE_FUNCTION();
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 

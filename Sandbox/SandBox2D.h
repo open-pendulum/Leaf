@@ -2,8 +2,7 @@
 
 #include "Leaf.h"
 
-class Sandbox2D : public Leaf::Layer
-{
+class Sandbox2D : public Leaf::Layer {
 public:
     Sandbox2D();
     virtual ~Sandbox2D() = default;
@@ -13,7 +12,8 @@ public:
 
     void OnUpdate(Leaf::Timestep ts) override;
     virtual void OnImGuiRender() override;
-    void OnEvent(Leaf::Event& e) override;
+    void OnEvent(Leaf::Event &e) override;
+
 private:
     Leaf::OrthographicCameraController mCameraController;
 
@@ -21,5 +21,5 @@ private:
     Leaf::Ref<Leaf::VertexArray> mSquareVA;
     Leaf::Ref<Leaf::Shader> mFlatColorShader;
     Leaf::Ref<Leaf::Texture2D> mCheckerboardTexture;
-    glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
+    glm::vec4 mSquareColor = {0.2f, 0.3f, 0.8f, 1.0f};
 };

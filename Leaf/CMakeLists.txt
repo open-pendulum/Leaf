@@ -21,6 +21,8 @@ aux_source_directory(utils LEAF_UTILS_SOURCE)
 
 aux_source_directory(core/renderer LEAF_RENDERER_SOURCE)
 
+aux_source_directory(debug LEAF_DEBUG_SOURCE)
+
 add_subdirectory(third_party)
 set(LEAF_ALL_SOURCE
         ${LEAF_SOURCE}
@@ -29,6 +31,7 @@ set(LEAF_ALL_SOURCE
         ${LEAF_PLATFORM_OPENGL_SOURCE}
         ${LEAF_RENDERER_SOURCE}
         ${LEAF_STB_IMAGE_SOURCE}
+        ${LEAF_DEBUG_SOURCE}
         )
 
 if (BUILD_LEAF_SHARED)

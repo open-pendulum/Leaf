@@ -4,6 +4,7 @@
 
 #include "OpenGLVertexArray.h"
 
+#include "debug/Instrumentor.h"
 #include "glad/glad.h"
 
 namespace Leaf {
@@ -37,14 +38,20 @@ static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type) {
 }
 
 OpenGLVertexArray::OpenGLVertexArray() {
+    LEAF_PROFILE_FUNCTION();
+
     glGenVertexArrays(1, &mRendererID);
 }
 
 OpenGLVertexArray::~OpenGLVertexArray() {
+    LEAF_PROFILE_FUNCTION();
+
     glDeleteVertexArrays(1, &mRendererID);
 }
 
 void OpenGLVertexArray::Bind() const {
+    LEAF_PROFILE_FUNCTION();
+
     glBindVertexArray(mRendererID);
 }
 
@@ -53,6 +60,8 @@ void OpenGLVertexArray::Unbind() const {
 }
 
 void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer> &vertexBuffer) {
+    LEAF_PROFILE_FUNCTION();
+
     LEAF_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size(),
                      "Vertex Buffer has no layout!");
 
@@ -78,8 +87,9 @@ void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer> &vertexBuffer) {
     mVertexBuffers.push_back(vertexBuffer);
 }
 
-void OpenGLVertexArray::SetIndexBuffer(
-    const Ref<IndexBuffer> &indexBuffer) {
+void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer> &indexBuffer) {
+    LEAF_PROFILE_FUNCTION();
+
     glBindVertexArray(mRendererID);
     indexBuffer->Bind();
     mIndexBuffer = indexBuffer;

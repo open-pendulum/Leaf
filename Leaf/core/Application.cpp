@@ -6,8 +6,8 @@
 
 #include <GLFW/glfw3.h>
 
-#include "Input.h"
 #include "Window.h"
+#include "debug/Instrumentor.h"
 #include "events/ApplicationEvent.h"
 #include "renderer/Renderer.h"
 
@@ -19,6 +19,7 @@ Application *Application::sInstance = nullptr;
 Application::Application() {
     LEAF_CORE_ASSERT(!sInstance, "Application already exists!")
 
+    LEAF_PROFILE_FUNCTION();
     // 创建底层窗口（平台相关封装在 Window::Create 内）
     mWindow = Window::Create();
     // 将 Application::OnEvent 注册为窗口事件回调入口
@@ -34,10 +35,12 @@ Application::Application() {
 }
 
 Application::~Application() {
+    LEAF_PROFILE_FUNCTION();
     Renderer::Shutdown();
 }
 
 void Application::OnEvent(Event &e) {
+    LEAF_PROFILE_FUNCTION();
     // 先使用 EventDispatcher 做事件类型分发，例如窗口关闭
     EventDispatcher dispatcher(e);
     dispatcher.Dispatch<WindowCloseEvent>(
@@ -45,10 +48,8 @@ void Application::OnEvent(Event &e) {
     dispatcher.Dispatch<WindowResizeEvent>(
         LEAF_BIND_EVENT_FN(Application::OnWindowResize));
 
-    //    LEAF_CORE_TRACE("{0}", e.ToString());
-
-    for (auto it = mLayerStack.end(); it != mLayerStack.begin();) {
-        (*--it)->OnEvent(e);
+    for (auto it = mLayerStack.rbegin(); it != mLayerStack.rend(); ++it) {
+        (*it)->OnEvent(e);
         if (e.IsHandled()) {
             break;
         }
@@ -56,16 +57,18 @@ void Application::OnEvent(Event &e) {
 }
 
 void Application::Run() {
+    LEAF_PROFILE_FUNCTION();
     // 用一个简单的计数器来驱动相机旋转，便于观察 View 矩阵生效的效果
     static int i = 0;
     while (mRunning) {
         // 1. 渲染前的清屏
-
+        LEAF_PROFILE_SCOPE("RunLoop");
         float time = (float)glfwGetTime();
         Timestep timestep = time - mLastFrameTime;
         mLastFrameTime = time;
         // 4. 更新所有 Layer 的逻辑
         if (!mIsMinimized) {
+            LEAF_PROFILE_SCOPE("LayerStack OnUpdate");
             for (Layer *layer : mLayerStack) {
                 layer->OnUpdate(timestep);
             }
@@ -73,8 +76,11 @@ void Application::Run() {
 
         // 5. ImGui 渲染阶段：先 Begin，再让每个 Layer 画自己的 ImGui，再 End
         mImGuiLayer->Begin();
-        for (Layer *layer : mLayerStack) {
-            layer->OnImGuiRender();
+        {
+            LEAF_PROFILE_SCOPE("LayerStack OnImGuiRender");
+            for (Layer *layer : mLayerStack) {
+                layer->OnImGuiRender();
+            }
         }
 
         mImGuiLayer->End();
@@ -90,6 +96,7 @@ bool Application::OnWindowClose(WindowCloseEvent &e) {
 }
 
 bool Application::OnWindowResize(WindowResizeEvent &e) {
+    LEAF_PROFILE_FUNCTION();
     if (e.GetWidth() == 0 || e.GetHeight() == 0) {
         LEAF_INFO("Window resized to 0x0, minimizing...");
         mIsMinimized = true;
@@ -100,10 +107,12 @@ bool Application::OnWindowResize(WindowResizeEvent &e) {
     return true;
 }
 void Application::PushLayer(Leaf::Layer *layer) {
+    LEAF_PROFILE_FUNCTION();
     mLayerStack.PushLayer(layer);
     layer->OnAttach();
 }
 void Application::PushOverlay(Leaf::Layer *overlay) {
+    LEAF_PROFILE_FUNCTION();
     mLayerStack.PushOverlay(overlay);
     overlay->OnAttach();
 }

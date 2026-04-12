@@ -6,6 +6,7 @@
 
 #include <GLFW/glfw3.h>
 
+#include "debug/Instrumentor.h"
 #include "events/ApplicationEvent.h"
 #include "events/KeyEvent.h"
 #include "events/MouseEvent.h"
@@ -19,19 +20,25 @@ Scope<Window> Window::Create(const WindowProps &props) {
 }
 
 WindowsWindow::WindowsWindow(const WindowProps &props) {
+    LEAF_PROFILE_FUNCTION();
+
     Init(props);
 }
 WindowsWindow::~WindowsWindow() {
+    LEAF_PROFILE_FUNCTION();
+
     Shutdown();
 }
 void WindowsWindow::Init(const WindowProps &props) {
+    LEAF_PROFILE_FUNCTION();
+
     mData.Title = props.Title;
     mData.Width = props.Width;
     mData.Height = props.Height;
     LEAF_INFO("Creating window {} ({}, {})", props.Title, props.Width,
               props.Height);
     if (s_GLFWInitializedCount == 0) {
-        LEAF_CORE_INFO("Initializing GLFW");
+        LEAF_PROFILE_SCOPE("glfw initialization");
         int success = glfwInit();
         LEAF_CORE_ASSERT(success, "Could not initialize GLFW!");
         glfwSetErrorCallback([](int error, const char *description) {
@@ -40,8 +47,11 @@ void WindowsWindow::Init(const WindowProps &props) {
     }
     mWindow = glfwCreateWindow((int)props.Width, (int)props.Height,
                                mData.Title.c_str(), nullptr, nullptr);
-    ++s_GLFWInitializedCount;
-    mContext = GraphicsContext::Create(mWindow);
+    {
+        LEAF_PROFILE_SCOPE("glfwCreateWindow");
+        mContext = GraphicsContext::Create(mWindow);
+        ++s_GLFWInitializedCount;
+    }
 
     mContext->Init();
 
@@ -129,6 +139,8 @@ void WindowsWindow::Init(const WindowProps &props) {
 }
 
 void WindowsWindow::Shutdown() {
+    LEAF_PROFILE_FUNCTION();
+
     glfwDestroyWindow(mWindow);
     if (--s_GLFWInitializedCount == 0) {
         LEAF_CORE_INFO("Terminating GLFW");
@@ -136,11 +148,15 @@ void WindowsWindow::Shutdown() {
     }
 }
 void WindowsWindow::OnUpdate() {
+    LEAF_PROFILE_FUNCTION();
+
     glfwPollEvents();
     mContext->SwapBuffers();
 }
 
 void WindowsWindow::SetVSync(bool enabled) {
+    LEAF_PROFILE_FUNCTION();
+
     if (enabled)
         glfwSwapInterval(1);
     else

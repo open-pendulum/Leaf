@@ -5,6 +5,7 @@
 #include "Renderer.h"
 
 #include "Renderer2D.h"
+#include "debug/Instrumentor.h"
 #include "platform/opengl/OpenGLShader.h"
 namespace Leaf {
 
@@ -14,6 +15,7 @@ Scope<Renderer::SceneData> Renderer::sSceneData =
     CreateScope<Renderer::SceneData>();
 
 void Renderer::Init() {
+    LEAF_PROFILE_FUNCTION();
     RenderCommand::Init();
     Renderer2D::Init();
 }

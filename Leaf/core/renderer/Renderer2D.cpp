@@ -6,6 +6,7 @@
 #include "RenderCommand.h"
 #include "Shader.h"
 #include "VertexArray.h"
+#include "debug/Instrumentor.h"
 
 namespace Leaf {
 
@@ -19,6 +20,7 @@ struct Renderer2DStorage {
 static Renderer2DStorage *s_Data;
 
 void Renderer2D::Init() {
+    LEAF_PROFILE_FUNCTION();
     s_Data = new Renderer2DStorage();
     s_Data->quad_vertex_array = VertexArray::Create();
 
@@ -56,10 +58,12 @@ void Renderer2D::Init() {
 }
 
 void Renderer2D::Shutdown() {
+    LEAF_PROFILE_FUNCTION();
     delete s_Data;
 }
 
 void Renderer2D::BeginScene(const OrthographicCamera &camera) {
+    LEAF_PROFILE_FUNCTION();
     // 上传视图投影矩阵，应用于所有后续绘制
     s_Data->texture_color_shader->Bind();
     s_Data->texture_color_shader->SetMat4("u_ViewProjection",
@@ -67,6 +71,7 @@ void Renderer2D::BeginScene(const OrthographicCamera &camera) {
 }
 
 void Renderer2D::EndScene() {
+    LEAF_PROFILE_FUNCTION();
     // 目前为空，留给后续批量渲染扩展
 }
 
@@ -77,6 +82,7 @@ void Renderer2D::DrawQuad(const glm::vec2 &position, const glm::vec2 &size,
 
 void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size,
                           const glm::vec4 &color) {
+    LEAF_PROFILE_FUNCTION();
     s_Data->texture_color_shader->SetFloat4("u_Color", color);
     s_Data->white_texture->Bind();
 
@@ -95,6 +101,7 @@ void Renderer2D::DrawQuad(const glm::vec2 &position, const glm::vec2 &size,
 
 void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size,
                           const Ref<Texture2D> &texture) {
+    LEAF_PROFILE_FUNCTION();
     // 纹理绘制：颜色设为白色(1,1,1,1)使纹理原色显示
     s_Data->texture_color_shader->SetFloat4("u_Color", glm::vec4(1.0f));
     texture->Bind();
